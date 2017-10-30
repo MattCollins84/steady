@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title><%=apiName %> Docs</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+    <script src="/js/docs.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#"><%=apiName %></a>
+        <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+          <!--<ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Settings</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Profile</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Help</a>
+            </li>
+          </ul>-->
+
+          <!--<form class="form-inline mt-2 mt-md-0">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>-->
+        </div>
+      </nav>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
+          <ul class="nav nav-pills flex-column">
+            <% routes.forEach(function(route) { %>
+            <li class="nav-item">
+              <a class="nav-link" href="#<%=route.id %>"><%=route.name %></a>
+            </li>
+            <% }) %>
+          </ul>
+        </nav>
+
+        <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
+          <h1><%=apiName %> Documentation</h1>
+
+          <% routes.forEach(function(route) { %>
+            <h2 id="<%=route.id %>"><%=route.name %></h2>
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Parameter</th>
+                    <th>Required</th>
+                    <th>Type</th>
+                    <th>Example</th>
+                    <th>More</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% route.params.forEach(function(param) { %>
+                    <tr>
+                      <td><%=param.name %></td>
+                      <td>
+                        <code><%=param.required %></code>
+                      </td>
+                      <td><%=param.type %></td>
+                      <td>
+                        <%= param.type === 'enum' ? 'One of' : '' %>
+                        <code><%=param.example %></code>
+                      </td>
+                      <td>
+                          <% if (param.more.default) { %>
+                            <strong>Default: </strong><code><%=param.more.default %></code><br />
+                          <% } %>
+                          <% if (param.more.regex) { %>
+                            <strong>Regex: </strong><code><%=param.more.regex %></code><br />
+                          <% } %>
+                          <% if (param.more.values) { %>
+                            <strong>Values: </strong><code><%=param.more.values %></code><br />
+                          <% } %>
+                          <% if (param.more.min) { %>
+                            <strong>Min: </strong><code><%=param.more.min %></code><br />
+                          <% } %>
+                          <% if (param.more.max) { %>
+                            <strong>Max: </strong><code><%=param.more.max %></code><br />
+                          <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% }) %>
+          
+        </main>
+      </div>
+    </div>
+
+    <script src="/js/jquery-3.2.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>  
+  </body>
+</html>
