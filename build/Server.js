@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const logger = require("morgan");
-const helmet = require("helmet");
-const cors = require("cors");
 const ejs = require("ejs");
 const path = require("path");
 const Routes_1 = require("./Routes");
@@ -37,8 +35,6 @@ class Server {
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.json());
         this.app.use(logger('dev'));
-        this.app.use(helmet());
-        this.app.use(cors());
     }
     // application routes
     setupRoutes() {

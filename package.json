@@ -1,25 +1,30 @@
 {
   "name": "steady",
   "version": "1.0.0",
-  "description": "",
+  "description": "Configurable REST API built with Express and TypeScript",
   "main": "build/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "prepublishOnly": "tsc"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "express",
+    "rest",
+    "api",
+    "configurable",
+    "joi"
+  ],
+  "author": "Matt Collins <matt@strikesandgutters.com>",
   "license": "ISC",
   "dependencies": {
     "ascii-art": "^1.4.2",
-    "cors": "^2.8.4",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
-    "helmet": "^3.9.0",
     "joi": "^13.0.1",
     "morgan": "^1.9.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.1",
     "@types/express": "^4.0.39",
     "@types/node": "^8.0.47"
   }
