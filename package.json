@@ -1,5 +1,5 @@
 {
-  "name": "steady",
+  "name": "steady-api",
   "version": "1.0.0",
   "description": "Configurable REST API built with Express and TypeScript",
   "main": "build/index.js",
