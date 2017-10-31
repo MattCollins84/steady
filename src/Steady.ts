@@ -7,7 +7,7 @@ import Server from './Server';
 import { IServerOptions } from './Server';
 debug('API:server');
 
-export interface ISteadyOptions {
+interface ISteadyOptions {
   controllersDir: string,
   routesDir: string,
   port?: number,

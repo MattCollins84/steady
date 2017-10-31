@@ -1,1 +1,2 @@
-export { Steady } from './Steady';
+import { Steady } from './Steady';
+export = Steady;
