@@ -70,7 +70,12 @@ export class Routes {
 
       route.params.forEach((param, index) => {
         const hasRequiredParamFields = paramRequiredFields.every(field => typeof param[field] !== 'undefined');
-        if (!hasRequiredParamFields) throw new Error(`Invalid parameter definition at index ${index} for ${route.method.toUpperCase()} ${route.url} - missing required field`)
+        if (!hasRequiredParamFields) throw new Error(`Invalid parameter definition at index ${index} for ${route.method.toUpperCase()} ${route.url} - missing required field`);
+
+        // does enum have associated values
+        if (param.type === 'enum' && (!param.values || !Array.isArray(param.values))) {
+          throw new Error(`No values defined for enum parameter in ${route.method.toUpperCase()} ${route.url}`)
+        }
       })
 
     });

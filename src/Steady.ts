@@ -60,14 +60,19 @@ export class Steady {
     this.customTypes = options.customTypes ? options.customTypes : this.customTypes
     
     // load routes and controllers and generate server configuration
-    this.loadRoutes();
-    this.loadControllers();
-    this.generateServerConfig();
+    try {
+      this.loadRoutes();
+      this.loadControllers();
+      this.generateServerConfig();
 
-    // create new server instance
-    this.server = new Server(this.routes, this.controllers, this.serverConfig);
-    this.server.app.set('port', this.port);
-    this.startHttpServer();
+      // create new server instance
+      this.server = new Server(this.routes, this.controllers, this.serverConfig);
+      this.server.app.set('port', this.port);
+      this.startHttpServer();
+    } catch (e) {
+      console.error(e);
+      process.exit(0);
+    }
   }
 
   // Wrap Express get request handler

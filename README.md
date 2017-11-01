@@ -1,5 +1,5 @@
 # Steady
-A simple, configurable, [Express](https://expressjs.com/) based API module to help you create new REST APIs very quickly and easily.
+A simple, configurable, [Express](https://expressjs.com/) based API module to help you create new JSON based REST APIs very quickly and easily.
 
 Features include:
 
@@ -101,7 +101,7 @@ This route definition does the following:
 
 **All properties except for `params` are required when defining a route**
 
-You can create multiple definitions within one Route definition file, and you can have multiple definition files.
+You can create multiple definitions within each route definition file, and you can have multiple definition files within the specified `routesDir` (see below).
 
 ### Create application
 From the root of your project:
@@ -122,7 +122,7 @@ const app = new Steady({
 });
 ````
 
-Here we define the directory that our Controllers live, and the directory that our Route definitions live. We can also give our API a name. And that's it! Run the API by doing:
+Here we define the directories that our Controllers and Route Definitions live in. We can also give our API a name. And that's it! Run the API by doing:
 
 ````sh
 node app.js
@@ -135,13 +135,77 @@ curl 'http://localhost:5000/user/123'
 curl 'http://localhost:5000/user/123?include_meta=true'
 ````
 
+## Request & Response
+One of the main drivers behind creating Steady was the desire for consistent responses, and as a result Steady is very opinionated on how it delivers these responses.
+
+Each controller action must be defined in the following way:
+
+````javascript
+/**
+ * params - contains the values passed in as parameters 
+ * callback - callback function expecting two arguments:
+ * > err - erroroneous response data
+ * > data - successful response data
+ */
+const action = function(params, callback) {
+  
+  // do something...
+  
+  return callback(err, data);
+
+}
+````
+
+### Erroneous Response
+If you wish to send an error response you must provide an object with the following parameters as the `err` value in the callback:
+
+* `status` - the HTTP status number (e.g. `400` for a Bad Request status - [more info](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes))
+* `errorMessage` - A human readable error message (e.g. 'Not all required fields were provided')
+* `errors` - An array of specific error messages (e.g. `['name is a required parameter', 'age must be a number']`)
+
+The response returned to the user will look something like this:
+
+````javascript
+// HTTP/1.1 400 Bad Request
+{
+  "errorMessage": "This request failed validation, please check the documentation for GET /example",
+  "errors": [
+      "'name' with value 'David' fails to match the required pattern: /^A.{3,4}$/"
+  ],
+  "request": {
+    "body": {
+      // data passed in the body of the request
+    },
+    "method": "POST",
+    "query": {
+      // data passed in the query string of the request
+    },
+    "url": "/thing"
+  }
+}
+````
+
+### Successful Response
+A successful response is much simpler, simply pass anything into the `data` argument of the callback whilst also passing `null` into the `err` argument of the callback. The response looks something like this:
+
+````javascript
+// HTTP/1.1 200 OK
+{
+  data: {
+    // whatever gets passed into the 'data' argument
+  }
+}
+````
+
+Currently, all successful requests are returned with a HTTP `200` response.
+
 ## More Options
-There are numerous features and options available to customise and tailor your `Steady` experience...
+There are numerous features and options available to customise and tailor your Steady experience...
 
 ### Configuration
-When creating a new instance of `Steady`, some configuration must be supplied in order to get up and running - however a number of sensible defaults are set in for the majority of the configuration.
+When creating a new instance of Steady, some configuration must be supplied in order to get up and running - however a number of sensible defaults are set in for the majority of the configuration.
 
-A new instance of `Steady` is created like this: `const app = new Steady( options );`
+A new instance of Steady is created like this: `const app = new Steady( options );`
 
 Configuration is passed in via the `options` object, which has the following properties:
 
@@ -151,11 +215,11 @@ Configuration is passed in via the `options` object, which has the following pro
 * `apiName` _default: `API`_ - the name of this API. Will be referenced in the docs, etc...
 * `docsPath` _default: `/`_ - the path where the API docs will be available
 * `apiPath` _default: `/`_ - the path where the API routes will be served from
-* `customTypes` - define custom types for use in your Route definitions, find out more in the __Custom Types__ section of this document
-* `middleware` - define the Express Middleware you wish to use, find out more in the __Middleware__ section of this document
+* `customTypes` - define custom types for use in your Route definitions, find out more in the [Custom Types](#custom-types) section of this document
+* `middleware` - define the Express Middleware you wish to use, find out more in the [Middleware](#middleware) section of this document
 
 ### Route Parameters
-When defining Routes in Steady, you can describe the different parameters you wish to use. Part of this process is defining what _type_ this parameter is. This helps `Steady` to validate that your users are passing in the correct data.
+When defining Routes in Steady, you can describe the different parameters you wish to use. Part of this process is defining what _type_ this parameter is. This helps Steady to validate that your users are passing in the correct data.
 
 All parameter definitions can include the following information:
 
@@ -209,7 +273,7 @@ You can also define a `min` and/or `max` property to define a range
 ````
 
 #### `enum`
-A restricted set of options.
+A defined set of values.
 You must define a `values` property to describe the allowed options.
 
 ````javascript
@@ -222,9 +286,9 @@ You must define a `values` property to describe the allowed options.
 ````
 
 ### Custom Types
-Although `Steady` has provided you with 7 standard types out of the box, it is very possible that they won't be enough to cover the unique use cases of your applications. So to help you with this, `Steady` allows you to create custom types to fit these use cases.
+Although Steady has provided you with 7 standard types out of the box, it is very possible that they won't be enough to cover the unique use cases of your applications. So to help you with this, Steady allows you to create custom types to fit these use cases.
 
-Validation in `Steady` is handled by [Joi](https://github.com/hapijs/joi), and you can also use Joi to define your own parameter types along with the necessary validation to go with it.
+Validation in Steady is handled by [Joi](https://github.com/hapijs/joi), and you can also use Joi to define your own parameter types along with the necessary validation to go with it.
 
 Here is an example of creating a new `point` type, which requires an array with 2 numeric elements.
 
@@ -256,7 +320,7 @@ Once your new types are defined, you can use them when defining your Route param
 ````
 
 ### Middleware
-As mentioned earlier, `Steady` is based on [Express](https://expressjs.com/), and as such allows you to use all of your favourite Express Middleware!
+As mentioned earlier, Steady is based on [Express](https://expressjs.com/), and as such allows you to use all of your favourite Express Middleware!
 
 For example, lets say you want to add the [Compression](https://github.com/expressjs/compression) middleware you could just do:
 
@@ -275,7 +339,7 @@ const app = new Steady({
 ````
 
 ### Additional routes
-Again, `Steady` is just an Express app at heart, so if you wish to define additional routes outside of your API, you can do so!
+Again, Steady is just an Express app at heart, so if you wish to define additional routes outside of your API, you can do so!
 
 ````javascript
 const Steady = require('steady-api');
@@ -292,6 +356,6 @@ app.get('/example', (req, res) => {
 ````
 
 ### Documentation
-One of the advantages of using `Steady` is that documentation is auto-generated for you!
+One of the advantages of using Steady is that documentation is auto-generated for you!
 
-By default, the docs will be available at `/` but can be changed by specifying a `docsPath` when configuring your API.
+By default, the docs will be available at `/` but can be changed by specifying a `docsPath` when configuring your Steady API.
