@@ -2,13 +2,17 @@ import * as express from 'express';
 import * as logger from 'morgan';
 import * as ejs from 'ejs';
 import * as path from 'path';
+import { ICustomType } from './Steady';
 import { Routes } from './Routes';
 import ApiRouter from './ApiRouter';
+import { RequestHandler } from 'express';
 
 export interface IServerOptions {
   apiName?: string
   docsPath?: string
   apiPath?: string
+  customTypes?: ICustomType[],
+  middleware?: RequestHandler[]
 }
 
 class Server {
@@ -21,7 +25,9 @@ class Server {
   private options: IServerOptions = {
     apiName: 'API',
     docsPath: '/',
-    apiPath: '/'
+    apiPath: '/',
+    customTypes: [],
+    middleware: []
   }
 
   constructor(routes, controllers, options) {
@@ -54,7 +60,9 @@ class Server {
     // express middleware
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
-    this.app.use(logger('dev'));
+
+    // custom middleware
+    this.options.middleware.forEach(middleware => this.app.use(middleware));
   }
 
   // application routes
@@ -69,7 +77,7 @@ class Server {
     });
 
     // load API routes from config
-    const apiRouter: ApiRouter = new ApiRouter(this.routes, this.controllers);
+    const apiRouter: ApiRouter = new ApiRouter(this.routes, this.controllers, this.options.customTypes);
     this.app.use(this.options.apiPath, apiRouter.router);
     
   }

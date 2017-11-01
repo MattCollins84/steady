@@ -2,6 +2,7 @@ import * as http from 'http';
 import * as debug from 'morgan';
 import * as fs from 'fs';
 import * as aa from 'ascii-art';
+import * as Joi from 'joi';
 import { ErrorRequestHandler, RequestHandler, Request, Response, NextFunction } from 'express';
 import Server from './Server';
 import { IServerOptions } from './Server';
@@ -13,7 +14,15 @@ interface ISteadyOptions {
   port?: number,
   apiName?: string,
   docsPath?: string,
-  apiPath?: string
+  apiPath?: string,
+  customTypes?: ICustomType[],
+  middleware?: RequestHandler[]
+}
+
+export interface ICustomType {
+  name: string
+  validation: Joi
+  example?: string
 }
 
 export class Steady {
@@ -21,6 +30,8 @@ export class Steady {
   private apiName: string = 'API';
   private docsPath: string = '/';
   private apiPath: string = '/';
+  private customTypes: ICustomType[] = [];
+  private middleware: RequestHandler[] = [];
   private controllersDir: string;
   private routesDir: string;
   private port: number = 5000;
@@ -36,11 +47,17 @@ export class Steady {
     this.controllersDir = options.controllersDir;
     this.routesDir = options.routesDir;
     
-    // optional options
+    // optional configuration
     this.port = options.port ? options.port : this.port;
     this.apiName = options.apiName ? options.apiName : this.apiName;
     this.docsPath = options.docsPath ? options.docsPath : this.docsPath;
     this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
+
+    // middleware
+    this.middleware = options.middleware ? options.middleware : this.middleware;
+
+    // create custom types
+    this.customTypes = options.customTypes ? options.customTypes : this.customTypes
     
     // load routes and controllers and generate server configuration
     this.loadRoutes();
@@ -51,11 +68,6 @@ export class Steady {
     this.server = new Server(this.routes, this.controllers, this.serverConfig);
     this.server.app.set('port', this.port);
     this.startHttpServer();
-  }
-
-  // Wrap Express middleware method
-  public use(middleware: RequestHandler | ErrorRequestHandler): void {
-    this.server.app.use(middleware);
   }
 
   // Wrap Express get request handler
@@ -92,12 +104,15 @@ export class Steady {
     this.serverConfig = {
       apiName: this.apiName,
       docsPath: this.docsPath,
-      apiPath: this.apiPath
+      apiPath: this.apiPath,
+      customTypes: this.customTypes,
+      middleware: this.middleware
     };
   }
 
   // load routes from files
   private loadRoutes(): void {
+    if (!this.routesDir) throw new Error(`Please specify a 'routesDir' when initialising`);
     let routes = [];
     fs.readdirSync(this.routesDir).forEach(routeFile => {
       const path = `${process.cwd()}/${this.routesDir}/${routeFile}`;
@@ -109,6 +124,7 @@ export class Steady {
 
   // load controllers from file
   private loadControllers(): void {
+    if (!this.controllersDir) throw new Error(`Please specify a 'controllersDir' when initialising`);
     let controllers = {};
     fs.readdirSync(this.controllersDir).forEach(controllerFile => {
       const path = `${process.cwd()}/${this.controllersDir}/${controllerFile}`;

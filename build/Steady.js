@@ -11,15 +11,21 @@ class Steady {
         this.apiName = 'API';
         this.docsPath = '/';
         this.apiPath = '/';
+        this.customTypes = [];
+        this.middleware = [];
         this.port = 5000;
         // required options
         this.controllersDir = options.controllersDir;
         this.routesDir = options.routesDir;
-        // optional options
+        // optional configuration
         this.port = options.port ? options.port : this.port;
         this.apiName = options.apiName ? options.apiName : this.apiName;
         this.docsPath = options.docsPath ? options.docsPath : this.docsPath;
         this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
+        // middleware
+        this.middleware = options.middleware ? options.middleware : this.middleware;
+        // create custom types
+        this.customTypes = options.customTypes ? options.customTypes : this.customTypes;
         // load routes and controllers and generate server configuration
         this.loadRoutes();
         this.loadControllers();
@@ -28,10 +34,6 @@ class Steady {
         this.server = new Server_1.default(this.routes, this.controllers, this.serverConfig);
         this.server.app.set('port', this.port);
         this.startHttpServer();
-    }
-    // Wrap Express middleware method
-    use(middleware) {
-        this.server.app.use(middleware);
     }
     // Wrap Express get request handler
     get(url, handler) {
@@ -61,11 +63,15 @@ class Steady {
         this.serverConfig = {
             apiName: this.apiName,
             docsPath: this.docsPath,
-            apiPath: this.apiPath
+            apiPath: this.apiPath,
+            customTypes: this.customTypes,
+            middleware: this.middleware
         };
     }
     // load routes from files
     loadRoutes() {
+        if (!this.routesDir)
+            throw new Error(`Please specify a 'routesDir' when initialising`);
         let routes = [];
         fs.readdirSync(this.routesDir).forEach(routeFile => {
             const path = `${process.cwd()}/${this.routesDir}/${routeFile}`;
@@ -76,6 +82,8 @@ class Steady {
     }
     // load controllers from file
     loadControllers() {
+        if (!this.controllersDir)
+            throw new Error(`Please specify a 'controllersDir' when initialising`);
         let controllers = {};
         fs.readdirSync(this.controllersDir).forEach(controllerFile => {
             const path = `${process.cwd()}/${this.controllersDir}/${controllerFile}`;

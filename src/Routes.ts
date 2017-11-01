@@ -15,7 +15,7 @@ export interface IDocsRoute extends IRoute {
 export interface IRouteParameter {
   name: string
   required: boolean
-  type: RouteParameterType
+  type: string
   default?: any
   values?: any[]
   regex?: string
@@ -27,9 +27,11 @@ export interface IRouteParameter {
 
 interface IRouteParameterMore {
   default?: string
+  regex?: string
+  values?: any[]
+  min?: number
+  max?: number
 }
-
-export type RouteParameterType = 'string' | 'boolean' | 'number' | 'enum';
 
 export class Routes {
   
@@ -37,13 +39,40 @@ export class Routes {
   
   constructor(routes) {
     this.routes = routes;
+    this.validateRoutes();
     this.routes = this.routes.map((route: IRoute) => {
       route.method = route.method.toLowerCase();
       route.params.forEach((param: IRouteParameter) => {
+        param.type = param.type.toLowerCase();
         param.example = this.getParamExample(param);
         param.more = this.getParamMoreDetails(param);
       })
       return route;
+    });
+  }
+
+  validateRoutes() {
+    const routeRequiredFields = ['description', 'method', 'url', 'controller', 'action'];
+    const paramRequiredFields = ['name', 'required', 'type']
+    this.routes.forEach(route => {
+      
+      // make sure params is an array
+      if (!route.params) { 
+        route.params = [];
+      }
+      if (!Array.isArray(route.params)) {
+        throw new Error(`Params must be an array for ${route.method.toUpperCase()} ${route.url}`)
+      }
+
+      // does this route have the required properties
+      const hasRequiredFields = routeRequiredFields.every(field => !!route[field])
+      if (!hasRequiredFields) throw new Error(`Invalid Route definition for ${route.method.toUpperCase()} ${route.url} - missing required field`)
+
+      route.params.forEach((param, index) => {
+        const hasRequiredParamFields = paramRequiredFields.every(field => typeof param[field] !== 'undefined');
+        if (!hasRequiredParamFields) throw new Error(`Invalid parameter definition at index ${index} for ${route.method.toUpperCase()} ${route.url} - missing required field`)
+      })
+
     });
   }
 
@@ -86,6 +115,18 @@ export class Routes {
       
       case 'enum':
         example = param.values.join(', ')
+        break;
+
+      case 'date':
+        example = '2014-09-27'
+        break;
+
+      case 'url':
+        example = 'http://www.example.com';
+        break;
+
+      case 'email':
+        example = 'john@example.com';
         break;
     }
 

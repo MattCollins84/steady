@@ -5,10 +5,11 @@ const Validator_1 = require("./Validator");
 const ErrorResponse_1 = require("./ErrorResponse");
 const SuccessResponse_1 = require("./SuccessResponse");
 class ApiRouter {
-    constructor(routes, controllers) {
+    constructor(routes, controllers, customTypes = []) {
         this.router = express_1.Router();
         this.routes = routes;
         this.controllers = controllers;
+        this.customTypes = customTypes;
         this.routes.routes.forEach(route => {
             switch (route.method.toLowerCase()) {
                 case "get":
@@ -34,12 +35,23 @@ class ApiRouter {
         this.router[route.method](route.url, (req, res) => {
             let values = route.method === 'get' ? req.query : req.body;
             const validator = new Validator_1.default(route.params, values);
-            if (validator.isValid() === false) {
-                const errorMessage = `This request failed validation, please check the documentation for ${route.method.toUpperCase()} ${route.url}`;
-                const err = new ErrorResponse_1.ErrorResponse({ req, res, errorMessage, errors: validator.getErrors(), status: 400 });
+            validator.addCustomTypes(this.customTypes);
+            try {
+                if (validator.isValid() === false) {
+                    const errorMessage = `This request failed validation, please check the documentation for ${route.method.toUpperCase()} ${route.url}`;
+                    const err = new ErrorResponse_1.ErrorResponse({ req, res, errorMessage, errors: validator.getErrors(), status: 400 });
+                    return err.send();
+                }
+            }
+            catch (e) {
+                const errorMessage = e.message;
+                const errors = [
+                    `Invalid route definition for ${route.method.toUpperCase()} ${route.url}`
+                ];
+                const err = new ErrorResponse_1.ErrorResponse({ req, res, errorMessage, errors: errors, status: 501 });
                 return err.send();
             }
-            values = Object.assign(values, req.params);
+            values = Object.assign(validator.values, req.params);
             return action(values, (err, data) => {
                 if (err) {
                     const response = new ErrorResponse_1.ErrorResponse({

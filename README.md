@@ -6,9 +6,13 @@ Features include:
 * Auto-generated documentation
 * Easily customisable with Express Middlewares
 * Consistent approach to building APIs
+* Parameter validation via [Joi](https://github.com/hapijs/joi)
+* Customisable parameter types
 
 ## Basic usage
-To gt started with Steady, you will need to do three things:
+To install, do `npm install steady-api`
+
+Then to get started with Steady, you will need to do three things:
 
 * Create a controller and some actions
 * Define a route
@@ -54,6 +58,10 @@ const fetch = (params, callback) => {
   });
 
 }
+
+module.exports = {
+  fetch: fetch
+}
 ````
 
 ### Define a route
@@ -88,9 +96,12 @@ This route definition does the following:
 
 * Defines an active route for `GET /user/:userId`, where `userId` can be captured as a parameter to be used later ([see Express documentation on routing for more info](https://expressjs.com/en/guide/routing.html))
 * Defines the controller to be used (`user.js`)
-* Defines the action to be user from within the controller
-* Defines an additional parameter `include_meta` to be used in this request
+* Defines the action to be user from within the controller (`fetch`)
+* Defines an additional parameter `include_meta` that can be used in this request
 
+**All properties except for `params` are required when defining a route**
+
+You can create multiple definitions within one Route definition file, and you can have multiple definition files.
 
 ### Create application
 From the root of your project:
@@ -102,7 +113,7 @@ touch app.js
 In `app.js` we will create our new Steady API:
 
 ````javascript
-const Steady = require('steady');
+const Steady = require('steady-api');
 
 const app = new Steady({
   controllersDir: './controllers',
@@ -123,3 +134,164 @@ Your API will now be running on port `5000` and you can make requests like so:
 curl 'http://localhost:5000/user/123'
 curl 'http://localhost:5000/user/123?include_meta=true'
 ````
+
+## More Options
+There are numerous features and options available to customise and tailor your `Steady` experience...
+
+### Configuration
+When creating a new instance of `Steady`, some configuration must be supplied in order to get up and running - however a number of sensible defaults are set in for the majority of the configuration.
+
+A new instance of `Steady` is created like this: `const app = new Steady( options );`
+
+Configuration is passed in via the `options` object, which has the following properties:
+
+* `controllersDir` __required__ - path to a directory that contains your controllers (e.g. `./controllers`)
+* `routesDir` __required__ - path to a directory that contains your route definition files (e.g. `./routes`)
+* `port` _default: `5000`_ - the port your server will be listening on
+* `apiName` _default: `API`_ - the name of this API. Will be referenced in the docs, etc...
+* `docsPath` _default: `/`_ - the path where the API docs will be available
+* `apiPath` _default: `/`_ - the path where the API routes will be served from
+* `customTypes` - define custom types for use in your Route definitions, find out more in the __Custom Types__ section of this document
+* `middleware` - define the Express Middleware you wish to use, find out more in the __Middleware__ section of this document
+
+### Route Parameters
+When defining Routes in Steady, you can describe the different parameters you wish to use. Part of this process is defining what _type_ this parameter is. This helps `Steady` to validate that your users are passing in the correct data.
+
+All parameter definitions can include the following information:
+
+````javascript
+{
+  "name": "foo", // required - name of the parameter
+  "required": true, // required - is this parameter required, true/false
+  "type": "string", // required - the type of the parameter
+  "default": "bar", // this will be the default value of this parameter if it is not provided by the user
+  "example": "Example String" // An example of what you are expecting from the user, to be shown in the docs (sensible defaults applied if not provided)
+}
+````
+
+Steady provides 7 different types out of the box:
+
+* `string`
+* `number`
+* `boolean`
+* `enum`
+* `date`
+* `url`
+* `email`
+
+Some of these types also come with further configuration options:
+
+#### `string`
+A simple string, any amount of any characters.
+You can also define a `regex` property to enforce a particular pattern
+
+````javascript
+{
+  "name": "foo", 
+  "required": false,
+  "type": "string",
+  "regex": "^[A-Z].+" // string must start with an upper case letter
+}
+````
+
+#### `number`
+A numeric value, integers or floats.
+You can also define a `min` and/or `max` property to define a range
+
+````javascript
+{
+  "name": "foo", 
+  "required": false,
+  "type": "number",
+  "min": 10, // minimum value of 10
+  "max": 100 // maximum value of 100
+}
+````
+
+#### `enum`
+A restricted set of options.
+You must define a `values` property to describe the allowed options.
+
+````javascript
+{
+  "name": "foo", 
+  "required": false,
+  "type": "enum",
+  "values": ["bar", "baz", "xyz"]
+}
+````
+
+### Custom Types
+Although `Steady` has provided you with 7 standard types out of the box, it is very possible that they won't be enough to cover the unique use cases of your applications. So to help you with this, `Steady` allows you to create custom types to fit these use cases.
+
+Validation in `Steady` is handled by [Joi](https://github.com/hapijs/joi), and you can also use Joi to define your own parameter types along with the necessary validation to go with it.
+
+Here is an example of creating a new `point` type, which requires an array with 2 numeric elements.
+
+````javascript
+const Steady = require('steady');
+const Joi = require('joi');
+
+const app = new Steady({
+  controllersDir: './controllers',
+  routesDir: './routes',
+  customTypes: [
+    {
+      "name": "point", // the name of our new type
+      "validation": Joi.array().length(2).items(Joi.number().required(), Joi.number().required()) // Joi validation for this type
+    }
+  ]
+});
+````
+
+Once your new types are defined, you can use them when defining your Route parameters, just like any other type:
+
+````javascript
+{
+  "name": "foo",
+  "type": "point",
+  "default": [1,1],
+  "required": true
+}
+````
+
+### Middleware
+As mentioned earlier, `Steady` is based on [Express](https://expressjs.com/), and as such allows you to use all of your favourite Express Middleware!
+
+For example, lets say you want to add the [Compression](https://github.com/expressjs/compression) middleware you could just do:
+
+````javascript
+const Steady = require('steady-api');
+const compression = require('compression');
+
+const app = new Steady({
+  controllersDir: './controllers',
+  routesDir: './routes',
+  apiName: 'Example API',
+  middleware: [
+    compression()
+  ]
+});
+````
+
+### Additional routes
+Again, `Steady` is just an Express app at heart, so if you wish to define additional routes outside of your API, you can do so!
+
+````javascript
+const Steady = require('steady-api');
+
+const app = new Steady({
+  controllersDir: './controllers',
+  routesDir: './routes',
+  apiName: 'Example API'
+});
+
+app.get('/example', (req, res) => {
+  res.send('This is an example');
+})
+````
+
+### Documentation
+One of the advantages of using `Steady` is that documentation is auto-generated for you!
+
+By default, the docs will be available at `/` but can be changed by specifying a `docsPath` when configuring your API.

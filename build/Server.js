@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
-const logger = require("morgan");
 const ejs = require("ejs");
 const path = require("path");
 const Routes_1 = require("./Routes");
@@ -11,7 +10,9 @@ class Server {
         this.options = {
             apiName: 'API',
             docsPath: '/',
-            apiPath: '/'
+            apiPath: '/',
+            customTypes: [],
+            middleware: []
         };
         this.app = express();
         this.routes = new Routes_1.Routes(routes);
@@ -34,7 +35,8 @@ class Server {
         // express middleware
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.json());
-        this.app.use(logger('dev'));
+        // custom middleware
+        this.options.middleware.forEach(middleware => this.app.use(middleware));
     }
     // application routes
     setupRoutes() {
@@ -46,7 +48,7 @@ class Server {
             });
         });
         // load API routes from config
-        const apiRouter = new ApiRouter_1.default(this.routes, this.controllers);
+        const apiRouter = new ApiRouter_1.default(this.routes, this.controllers, this.options.customTypes);
         this.app.use(this.options.apiPath, apiRouter.router);
     }
 }

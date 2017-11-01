@@ -3,17 +3,20 @@ import { Routes, IRoute, IRouteParameter } from './Routes';
 import Validator from './Validator';
 import { ErrorResponse, IErrorData } from './ErrorResponse';
 import { SuccessResponse, ISuccessData } from './SuccessResponse';
+import { ICustomType } from './Steady';
 
 export default class ApiRouter {
 
   public router: Router;
   public routes: Routes;
   private controllers;
+  private customTypes: ICustomType[];
 
-  constructor(routes: Routes, controllers) {
+  constructor(routes: Routes, controllers, customTypes: ICustomType[] = []) {
     this.router = Router();
     this.routes = routes;
     this.controllers = controllers;
+    this.customTypes = customTypes;
 
     this.routes.routes.forEach(route => {
       switch (route.method.toLowerCase()) {
@@ -43,14 +46,24 @@ export default class ApiRouter {
 
       let values = route.method === 'get' ? req.query : req.body;
       const validator = new Validator(route.params, values);
+      validator.addCustomTypes(this.customTypes);
 
-      if (validator.isValid() === false) {
-        const errorMessage = `This request failed validation, please check the documentation for ${route.method.toUpperCase()} ${route.url}`
-        const err = new ErrorResponse({ req, res, errorMessage, errors: validator.getErrors(), status: 400 });
+      try {
+        if (validator.isValid() === false) {
+          const errorMessage = `This request failed validation, please check the documentation for ${route.method.toUpperCase()} ${route.url}`
+          const err = new ErrorResponse({ req, res, errorMessage, errors: validator.getErrors(), status: 400 });
+          return err.send();
+        }
+      } catch (e) {
+        const errorMessage = e.message;
+        const errors = [
+          `Invalid route definition for ${route.method.toUpperCase()} ${route.url}`
+        ];
+        const err = new ErrorResponse({ req, res, errorMessage, errors: errors, status: 501 });
         return err.send();
       }
 
-      values = Object.assign(values, req.params);
+      values = Object.assign(validator.values, req.params);
 
       return action(values, (err: IErrorData, data?: ISuccessData) => {
         if (err) {

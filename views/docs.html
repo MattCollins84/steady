@@ -9,7 +9,6 @@
     <title><%=apiName %> Docs</title>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/custom.css" rel="stylesheet">
-    <script src="/js/docs.js"></script>
   </head>
 
   <body>
@@ -81,8 +80,10 @@
                       </td>
                       <td><%=param.type %></td>
                       <td>
-                        <%= param.type === 'enum' ? 'One of' : '' %>
-                        <code><%=param.example %></code>
+                        <% if (param.example) { %>
+                          <%= param.type === 'enum' ? 'One of' : '' %>
+                          <code><%=param.example %></code>
+                        <% } %>
                       </td>
                       <td>
                           <% if (param.more.default) { %>
