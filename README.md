@@ -9,6 +9,10 @@ Features include:
 * Parameter validation via [Joi](https://github.com/hapijs/joi)
 * Customisable parameter types
 
+Coming soon:
+
+* Typescript support (including types)
+
 ## Basic usage
 To install, do `npm install steady-api`
 
@@ -293,7 +297,7 @@ Validation in Steady is handled by [Joi](https://github.com/hapijs/joi), and you
 Here is an example of creating a new `point` type, which requires an array with 2 numeric elements.
 
 ````javascript
-const Steady = require('steady');
+const Steady = require('steady-api');
 const Joi = require('joi');
 
 const app = new Steady({
