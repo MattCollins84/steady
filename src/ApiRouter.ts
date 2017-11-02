@@ -45,7 +45,7 @@ export default class ApiRouter {
     this.router[route.method](route.url, (req: Request, res: Response) => {
 
       let values = route.method === 'get' ? req.query : req.body;
-      const validator = new Validator(route.params, values);
+      const validator = new Validator(route.params, Object.assign({}, values));
       validator.addCustomTypes(this.customTypes);
 
       try {
