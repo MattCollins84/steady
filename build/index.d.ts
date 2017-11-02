@@ -3,15 +3,18 @@
 /// <reference types="joi" />
 
 import * as Joi from 'joi';
-import { RequestHandler } from 'express';
+import { RequestHandler, ErrorRequestHandler } from 'express';
   
-declare class Steady {
-    constructor(options: ISteadyOptions)
-  }
-declare module Steady { }
-export = Steady
+export class Steady {
+  constructor(options: ISteadyOptions)
+  get(url: string, handler: RequestHandler)
+  post(url: string, handler: RequestHandler)
+  put(url: string, handler: RequestHandler)
+  delete(url: string, handler: RequestHandler)
+  all(url: string, handler: RequestHandler)
+}
   
-interface ISteadyOptions {
+export interface ISteadyOptions {
   controllersDir: string,
   routesDir: string,
   port?: number,
@@ -19,10 +22,18 @@ interface ISteadyOptions {
   docsPath?: string,
   apiPath?: string,
   customTypes?: ICustomType[],
-  middleware?: RequestHandler[]
+  middleware?: (RequestHandler|ErrorRequestHandler)[]
 }
-interface ICustomType {
+export interface ICustomType {
   name: string
   validation: Joi.AnySchema
   example?: string
+}
+export interface IErrorData {
+  errorMessage: string
+  errors: string[]
+  status: number
+}
+export interface ISuccessData {
+  [key: string]: any
 }

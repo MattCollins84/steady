@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
 
-export interface ISuccessData {
-  req?: Request
-  res?: Response
+export interface ISuccessResponseOptions {
+  req: Request
+  res: Response
   status?: number
   data: object
+}
+
+export interface ISuccessData {
+  [key: string]: any
 }
 
 export class SuccessResponse {
@@ -14,7 +18,7 @@ export class SuccessResponse {
   private status: number = 200;
   private data: object;
 
-  constructor(options: ISuccessData) {
+  constructor(options: ISuccessResponseOptions) {
     this.req = options.req;
     this.res = options.res;
     this.status = options.status || 200;

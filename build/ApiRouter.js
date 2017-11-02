@@ -63,7 +63,7 @@ class ApiRouter {
                     });
                     return response.send();
                 }
-                const response = new SuccessResponse_1.SuccessResponse({ req, res, data: data, status: data.status || 200 });
+                const response = new SuccessResponse_1.SuccessResponse({ req, res, data: data, status: 200 });
                 return response.send();
             });
         });

@@ -4,14 +4,14 @@ import * as path from 'path';
 import { ICustomType } from './Steady';
 import { Routes } from './Routes';
 import ApiRouter from './ApiRouter';
-import { RequestHandler } from 'express';
+import { RequestHandler, ErrorRequestHandler } from 'express';
 
 export interface IServerOptions {
   apiName?: string
   docsPath?: string
   apiPath?: string
   customTypes?: ICustomType[],
-  middleware?: RequestHandler[]
+  middleware?: (RequestHandler|ErrorRequestHandler)[]
 }
 
 class Server {

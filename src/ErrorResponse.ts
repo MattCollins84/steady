@@ -1,8 +1,14 @@
 import { Request, Response } from 'express';
 
-export interface IErrorData {
+export interface IErrorResponseOptions {
   req?: Request
   res?: Response
+  errorMessage: string
+  errors: string[]
+  status: number
+}
+
+export interface IErrorData {
   errorMessage: string
   errors: string[]
   status: number
@@ -16,7 +22,7 @@ export class ErrorResponse {
   private errorMessage: string;
   private errors: string[];
 
-  constructor(options: IErrorData) {
+  constructor(options: IErrorResponseOptions) {
     this.req = options.req;
     this.res = options.res;
     this.status = options.status;

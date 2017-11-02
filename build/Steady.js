@@ -89,7 +89,10 @@ class Steady {
         if (!this.controllersDir)
             throw new Error(`Please specify a 'controllersDir' when initialising`);
         let controllers = {};
+        console.log(process.cwd(), this.controllersDir);
         fs.readdirSync(this.controllersDir).forEach(controllerFile => {
+            if (!controllerFile.match(/\.js$/))
+                return;
             const path = `${process.cwd()}/${this.controllersDir}/${controllerFile}`;
             const r = require(path);
             const controllerName = controllerFile.replace('.js', '');

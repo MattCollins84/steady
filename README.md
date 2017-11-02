@@ -8,10 +8,7 @@ Features include:
 * Consistent approach to building APIs
 * Parameter validation via [Joi](https://github.com/hapijs/joi)
 * Customisable parameter types
-
-Coming soon:
-
-* Typescript support (including types)
+* Basic [Typescript support](#typescript)
 
 ## Basic usage
 To install, do `npm install steady-api`
@@ -117,7 +114,7 @@ touch app.js
 In `app.js` we will create our new Steady API:
 
 ````javascript
-const Steady = require('steady-api');
+const Steady = require('steady-api').Steady;
 
 const app = new Steady({
   controllersDir: './controllers',
@@ -297,7 +294,7 @@ Validation in Steady is handled by [Joi](https://github.com/hapijs/joi), and you
 Here is an example of creating a new `point` type, which requires an array with 2 numeric elements.
 
 ````javascript
-const Steady = require('steady-api');
+const Steady = require('steady-api').Steady;
 const Joi = require('joi');
 
 const app = new Steady({
@@ -329,7 +326,7 @@ As mentioned earlier, Steady is based on [Express](https://expressjs.com/), and 
 For example, lets say you want to add the [Compression](https://github.com/expressjs/compression) middleware you could just do:
 
 ````javascript
-const Steady = require('steady-api');
+const Steady = require('steady-api').Steady;
 const compression = require('compression');
 
 const app = new Steady({
@@ -346,7 +343,7 @@ const app = new Steady({
 Again, Steady is just an Express app at heart, so if you wish to define additional routes outside of your API, you can do so!
 
 ````javascript
-const Steady = require('steady-api');
+const Steady = require('steady-api').Steady;
 
 const app = new Steady({
   controllersDir: './controllers',
@@ -363,3 +360,52 @@ app.get('/example', (req, res) => {
 One of the advantages of using Steady is that documentation is auto-generated for you!
 
 By default, the docs will be available at `/` but can be changed by specifying a `docsPath` when configuring your Steady API.
+
+## Typescript
+Steady also supports [Typescript](http://typescriptlang.org)!
+
+It's mostly the same as described above, but here's a quickstart guide:
+
+### Creating your app
+````javascript
+import { ISteadyOptions, Steady } from 'steady-api';
+Import * as Joi from 'joi';
+
+// Make sure your options conforms to the required format
+// including the validation for your custom types
+const opts: ISteadyOptions = {
+  controllersDir: './build/controllers',
+  routesDir: './routes',
+  customTypes: [
+    {
+      "name": "point",
+      "validation": Joi.array().length(2).items(Joi.number().required(), Joi.number().required())
+    }
+  ],
+}
+const app = new Steady(opts);
+````
+
+### Controllers
+````javascript
+import { IErrorData, ISuccessData } from 'steady-api';
+
+// enforce types for the arguments in the callback function
+const getThing = (params, callback: (err: IErrorData, data?: ISuccessData) => void) => {
+  
+  const thing = getThing(params.thingId)
+
+  if (!thing) {
+    return callback({
+      status: 404,
+      errorMessage: 'This thing was not found',
+      errors: [
+        `thingId ${params.thingId} not found`
+      ]
+    })
+  }
+
+  return callback(null, thing);
+
+}
+````

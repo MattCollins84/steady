@@ -14,7 +14,7 @@ export interface ISteadyOptions {
   docsPath?: string,
   apiPath?: string,
   customTypes?: ICustomType[],
-  middleware?: RequestHandler[]
+  middleware?: (RequestHandler|ErrorRequestHandler)[]
 }
 
 export interface ICustomType {
@@ -29,7 +29,7 @@ export class Steady {
   private docsPath: string = '/';
   private apiPath: string = '/';
   private customTypes: ICustomType[] = [];
-  private middleware: RequestHandler[] = [];
+  private middleware: (RequestHandler|ErrorRequestHandler)[] = [];
   private controllersDir: string;
   private routesDir: string;
   private port: number = 5000;
@@ -129,7 +129,9 @@ export class Steady {
   private loadControllers(): void {
     if (!this.controllersDir) throw new Error(`Please specify a 'controllersDir' when initialising`);
     let controllers = {};
+    console.log(process.cwd(), this.controllersDir)
     fs.readdirSync(this.controllersDir).forEach(controllerFile => {
+      if (!controllerFile.match(/\.js$/)) return;
       const path = `${process.cwd()}/${this.controllersDir}/${controllerFile}`;
       const r = require(path);
       const controllerName = controllerFile.replace('.js', '');
