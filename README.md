@@ -362,9 +362,11 @@ One of the advantages of using Steady is that documentation is auto-generated fo
 By default, the docs will be available at `/` but can be changed by specifying a `docsPath` when configuring your Steady API.
 
 ## Typescript
-Steady also supports [Typescript](http://typescriptlang.org)!
+Steady also has some basic [Typescript](http://typescriptlang.org) support.
 
-It's mostly the same as described above, but here's a quickstart guide:
+Firstly, do `npm install --save-dev @types/express @types/joi`
+
+From now onwards it's mostly the same as described above, but here's a quickstart guide:
 
 ### Creating your app
 ````javascript
