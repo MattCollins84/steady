@@ -25,7 +25,7 @@ export interface IRouteParameter {
   more?: IRouteParameterMore
 }
 
-interface IRouteParameterMore {
+export interface IRouteParameterMore {
   default?: string
   regex?: string
   values?: any[]

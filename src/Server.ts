@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as logger from 'morgan';
 import * as ejs from 'ejs';
 import * as path from 'path';
 import { ICustomType } from './Steady';

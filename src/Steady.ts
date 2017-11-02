@@ -1,14 +1,12 @@
 import * as http from 'http';
-import * as debug from 'morgan';
 import * as fs from 'fs';
 import * as aa from 'ascii-art';
 import * as Joi from 'joi';
 import { ErrorRequestHandler, RequestHandler, Request, Response, NextFunction } from 'express';
 import Server from './Server';
 import { IServerOptions } from './Server';
-debug('API:server');
 
-interface ISteadyOptions {
+export interface ISteadyOptions {
   controllersDir: string,
   routesDir: string,
   port?: number,
@@ -21,7 +19,7 @@ interface ISteadyOptions {
 
 export interface ICustomType {
   name: string
-  validation: Joi
+  validation: Joi.AnySchema
   example?: string
 }
 
@@ -172,7 +170,6 @@ export class Steady {
     let bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
     aa.font(this.apiName, 'Doom', function(rendered){
       console.log(rendered);
-      debug(`Listening on ${bind}`);
       console.log(`Listening on ${bind}`);
     });
   }

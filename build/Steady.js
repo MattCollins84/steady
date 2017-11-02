@@ -1,11 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
-const debug = require("morgan");
 const fs = require("fs");
 const aa = require("ascii-art");
 const Server_1 = require("./Server");
-debug('API:server');
 class Steady {
     constructor(options) {
         this.apiName = 'API';
@@ -130,7 +128,6 @@ class Steady {
         let bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
         aa.font(this.apiName, 'Doom', function (rendered) {
             console.log(rendered);
-            debug(`Listening on ${bind}`);
             console.log(`Listening on ${bind}`);
         });
     }
