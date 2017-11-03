@@ -1,5 +1,5 @@
 # Steady
-A simple, configurable, [Express](https://expressjs.com/) based API module to help you create new JSON based REST APIs very quickly and easily.
+A simple, configurable, [Express](https://expressjs.com/) based API framework to help you create new JSON based REST APIs very quickly and easily.
 
 Features include:
 
@@ -355,6 +355,8 @@ app.get('/example', (req, res) => {
   res.send('This is an example');
 })
 ````
+
+You can also use `app.post`, `app.put`, `app.delete` or `app.all` - just like in Express.
 
 ### Documentation
 One of the advantages of using Steady is that documentation is auto-generated for you!
