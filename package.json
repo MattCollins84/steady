@@ -22,6 +22,7 @@
     "ascii-art": "^1.4.2",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
+    "express-fileupload": "^0.3.0",
     "joi": "^13.0.1"
   },
   "devDependencies": {

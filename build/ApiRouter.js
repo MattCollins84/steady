@@ -34,7 +34,7 @@ class ApiRouter {
         let action = controller[route.action] || this.defaultAction;
         this.router[route.method](route.url, (req, res) => {
             let values = route.method === 'get' ? req.query : req.body;
-            const validator = new Validator_1.default(route.params, Object.assign({}, values));
+            const validator = new Validator_1.default(route.params, Object.assign({}, values, req.files));
             validator.addCustomTypes(this.customTypes);
             try {
                 if (validator.isValid() === false) {

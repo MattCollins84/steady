@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
+const fileupload = require("express-fileupload");
 const ejs = require("ejs");
 const path = require("path");
 const Routes_1 = require("./Routes");
@@ -35,6 +36,7 @@ class Server {
         // express middleware
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.json());
+        this.app.use(fileupload());
         // custom middleware
         this.options.middleware.forEach(middleware => this.app.use(middleware));
     }

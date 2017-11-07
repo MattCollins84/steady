@@ -5,6 +5,10 @@ import { ErrorResponse, IErrorData } from './ErrorResponse';
 import { SuccessResponse, ISuccessData } from './SuccessResponse';
 import { ICustomType } from './Steady';
 
+interface IFilesRequest extends Request {
+  files?: any
+}
+
 export default class ApiRouter {
 
   public router: Router;
@@ -42,10 +46,10 @@ export default class ApiRouter {
   setupRoute(route: IRoute): void {
     let controller = this.controllers[route.controller];
     let action = controller[route.action] || this.defaultAction;
-    this.router[route.method](route.url, (req: Request, res: Response) => {
+    this.router[route.method](route.url, (req: IFilesRequest, res: Response) => {
 
       let values = route.method === 'get' ? req.query : req.body;
-      const validator = new Validator(route.params, Object.assign({}, values));
+      const validator = new Validator(route.params, Object.assign({}, values, req.files));
       validator.addCustomTypes(this.customTypes);
 
       try {

@@ -234,7 +234,7 @@ All parameter definitions can include the following information:
 }
 ````
 
-Steady provides 7 different types out of the box:
+Steady provides 8 different types out of the box:
 
 * `string`
 * `number`
@@ -243,6 +243,9 @@ Steady provides 7 different types out of the box:
 * `date`
 * `url`
 * `email`
+* `file`
+
+_note:_ if you wish to use the `file` parameter type you must submit your data with `multipart/form-data` encoding.
 
 Some of these types also come with further configuration options:
 

@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as fileupload from 'express-fileupload';
 import * as ejs from 'ejs';
 import * as path from 'path';
 import { ICustomType } from './Steady';
@@ -59,6 +60,7 @@ class Server {
     // express middleware
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
+    this.app.use(fileupload());
 
     // custom middleware
     this.options.middleware.forEach(middleware => this.app.use(middleware));

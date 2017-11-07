@@ -7,7 +7,7 @@ export default class Validator {
   public params: IRouteParameter[];
   public values;
   public valid: boolean = true;
-  private types: string[] = ['string', 'number', 'boolean', 'enum', 'date', 'url', 'email'];
+  private types: string[] = ['string', 'number', 'boolean', 'enum', 'date', 'url', 'email', 'file'];
   private customTypes: ICustomType[] = [];
   private errors: string[];
   
@@ -78,9 +78,21 @@ export default class Validator {
     let x = Joi.string().uri();
     return x;
   }
-
+  
   private validateEmail(param: IRouteParameter) {
     let x = Joi.string().email();
+    return x;
+  }
+    
+  private validateFile(param: IRouteParameter) {
+    let keys = Joi.object().keys({
+      name: Joi.string(),
+      mv: Joi.func(),
+      data: Joi.any(),
+      encoding: Joi.string(),
+      mimetype: Joi.string()
+    });
+    let x = keys.optionalKeys('encoding', 'mimetype');
     return x;
   }
 
@@ -115,7 +127,10 @@ export default class Validator {
         case "email":
           x = this.validateEmail(param);
           break;
-        // must be a custom type
+        case "file":
+          x = this.validateFile(param);
+          break;
+        // custom type
         default:
           let customType: ICustomType = this.customTypes.filter((customType: ICustomType) => {
             return customType.name === param.type;

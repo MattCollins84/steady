@@ -4,7 +4,7 @@ const Joi = require("joi");
 class Validator {
     constructor(params, values) {
         this.valid = true;
-        this.types = ['string', 'number', 'boolean', 'enum', 'date', 'url', 'email'];
+        this.types = ['string', 'number', 'boolean', 'enum', 'date', 'url', 'email', 'file'];
         this.customTypes = [];
         this.params = params;
         this.values = values;
@@ -66,6 +66,17 @@ class Validator {
         let x = Joi.string().email();
         return x;
     }
+    validateFile(param) {
+        let keys = Joi.object().keys({
+            name: Joi.string(),
+            mv: Joi.func(),
+            data: Joi.any(),
+            encoding: Joi.string(),
+            mimetype: Joi.string()
+        });
+        let x = keys.optionalKeys('encoding', 'mimetype');
+        return x;
+    }
     validate() {
         const schema = {};
         this.params.forEach(param => {
@@ -95,7 +106,10 @@ class Validator {
                 case "email":
                     x = this.validateEmail(param);
                     break;
-                // must be a custom type
+                case "file":
+                    x = this.validateFile(param);
+                    break;
+                // custom type
                 default:
                     let customType = this.customTypes.filter((customType) => {
                         return customType.name === param.type;
