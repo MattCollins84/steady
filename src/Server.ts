@@ -13,6 +13,7 @@ export interface IServerOptions {
   apiPath?: string
   customTypes?: ICustomType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[]
+  staticContentDir?: string
 }
 
 class Server {
@@ -51,11 +52,16 @@ class Server {
   // application config
   public config(): void {
 
-    // handling our views
+    // handling our views for the docs
     this.app.engine('.html', ejs.__express);
-    this.app.use(express.static(path.join(__dirname, '../public')));
+    this.app.use('/docs-assets', express.static(path.join(__dirname, '../public')));
     this.app.set('views', path.join(__dirname, '../views'));
     this.app.set('view engine', 'html');
+
+    // static directory for other content
+    if (this.options.staticContentDir) {
+      this.app.use(express.static(path.join(this.options.staticContentDir)));
+    }
 
     // express middleware
     this.app.use(express.urlencoded({ extended: true }));

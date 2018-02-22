@@ -9,6 +9,7 @@ class Steady {
         this.apiName = 'API';
         this.docsPath = '/';
         this.apiPath = '/';
+        this.staticContentDir = null;
         this.customTypes = [];
         this.middleware = [];
         this.port = 5000;
@@ -20,6 +21,7 @@ class Steady {
         this.apiName = options.apiName ? options.apiName : this.apiName;
         this.docsPath = options.docsPath ? options.docsPath : this.docsPath;
         this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
+        this.staticContentDir = options.staticContentDir ? options.staticContentDir : this.staticContentDir;
         // middleware
         this.middleware = options.middleware ? options.middleware : this.middleware;
         // create custom types
@@ -69,7 +71,8 @@ class Steady {
             docsPath: this.docsPath,
             apiPath: this.apiPath,
             customTypes: this.customTypes,
-            middleware: this.middleware
+            middleware: this.middleware,
+            staticContentDir: this.staticContentDir
         };
     }
     // load routes from files
@@ -89,7 +92,6 @@ class Steady {
         if (!this.controllersDir)
             throw new Error(`Please specify a 'controllersDir' when initialising`);
         let controllers = {};
-        console.log(process.cwd(), this.controllersDir);
         fs.readdirSync(this.controllersDir).forEach(controllerFile => {
             if (!controllerFile.match(/\.js$/))
                 return;

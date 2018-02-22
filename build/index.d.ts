@@ -22,7 +22,8 @@ export interface ISteadyOptions {
   docsPath?: string,
   apiPath?: string,
   customTypes?: ICustomType[],
-  middleware?: (RequestHandler|ErrorRequestHandler)[]
+  middleware?: (RequestHandler|ErrorRequestHandler)[],
+  staticContentDir?: string
 }
 export interface ICustomType {
   name: string
