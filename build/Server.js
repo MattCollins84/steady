@@ -4,6 +4,7 @@ const express = require("express");
 const fileupload = require("express-fileupload");
 const ejs = require("ejs");
 const path = require("path");
+const http = require("http");
 const Routes_1 = require("./Routes");
 const ApiRouter_1 = require("./ApiRouter");
 class Server {
@@ -13,12 +14,15 @@ class Server {
             docsPath: '/',
             apiPath: '/',
             customTypes: [],
-            middleware: []
+            middleware: [],
+            httpAttach: {}
         };
         this.app = express();
+        this.server = http.createServer(this.app);
         this.routes = new Routes_1.Routes(routes);
         this.controllers = controllers;
         this.applyOptions(options);
+        this.attachHttpComponents();
         this.config();
         this.setupRoutes();
     }
@@ -43,6 +47,12 @@ class Server {
         this.app.use(fileupload());
         // custom middleware
         this.options.middleware.forEach(middleware => this.app.use(middleware));
+    }
+    // attach http components
+    attachHttpComponents() {
+        for (let attach in this.options.httpAttach) {
+            this.app.set(attach, this.options.httpAttach[attach](this.server));
+        }
     }
     // application routes
     setupRoutes() {

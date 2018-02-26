@@ -6,6 +6,10 @@ import { ErrorRequestHandler, RequestHandler, Request, Response, NextFunction } 
 import Server from './Server';
 import { IServerOptions } from './Server';
 
+export interface IHttpAttach {
+  [key: string]: any;
+}
+
 export interface ISteadyOptions {
   controllersDir: string,
   routesDir: string,
@@ -15,7 +19,8 @@ export interface ISteadyOptions {
   apiPath?: string,
   customTypes?: ICustomType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[],
-  staticContentDir?: string
+  staticContentDir?: string,
+  httpAttach?: IHttpAttach
 }
 
 export interface ICustomType {
@@ -30,6 +35,7 @@ export class Steady {
   private docsPath: string = '/';
   private apiPath: string = '/';
   private staticContentDir: string = null;
+  private httpAttach: object = {};
   private customTypes: ICustomType[] = [];
   private middleware: (RequestHandler|ErrorRequestHandler)[] = [];
   private controllersDir: string;
@@ -53,6 +59,7 @@ export class Steady {
     this.docsPath = options.docsPath ? options.docsPath : this.docsPath;
     this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
     this.staticContentDir = options.staticContentDir ? options.staticContentDir : this.staticContentDir;
+    this.httpAttach = options.httpAttach ? options.httpAttach : this.httpAttach;
 
     // middleware
     this.middleware = options.middleware ? options.middleware : this.middleware;
@@ -74,6 +81,11 @@ export class Steady {
       console.error(e);
       process.exit(0);
     }
+  }
+
+  // Get attached http functionality (Socket.io etc...)
+  public attachment(name: string): any {
+    return this.server.app.get(name);
   }
 
   // Wrap Express get request handler
@@ -113,7 +125,8 @@ export class Steady {
       apiPath: this.apiPath,
       customTypes: this.customTypes,
       middleware: this.middleware,
-      staticContentDir: this.staticContentDir
+      staticContentDir: this.staticContentDir,
+      httpAttach: this.httpAttach
     };
   }
 
@@ -145,7 +158,7 @@ export class Steady {
 
   // start up the HTTP server
   private startHttpServer(): void {
-    this.httpServer = http.createServer(this.server.app);
+    this.httpServer = this.server.server;
     this.httpServer.listen(this.port);
     this.httpServer.on('error', this.onError.bind(this));
     this.httpServer.on('listening', this.onListening.bind(this));

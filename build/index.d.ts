@@ -7,13 +7,18 @@ import { RequestHandler, ErrorRequestHandler } from 'express';
   
 export class Steady {
   constructor(options: ISteadyOptions)
+  attachment(name: string)
   get(url: string, handler: RequestHandler)
   post(url: string, handler: RequestHandler)
   put(url: string, handler: RequestHandler)
   delete(url: string, handler: RequestHandler)
   all(url: string, handler: RequestHandler)
 }
-  
+
+export interface IHttpAttach {
+  [key: string]: any;
+}
+
 export interface ISteadyOptions {
   controllersDir: string,
   routesDir: string,
@@ -24,6 +29,7 @@ export interface ISteadyOptions {
   customTypes?: ICustomType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[],
   staticContentDir?: string
+  httpAttach?: IHttpAttach
 }
 export interface ICustomType {
   name: string

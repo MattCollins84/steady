@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const http = require("http");
 const fs = require("fs");
 const aa = require("ascii-art");
 const Server_1 = require("./Server");
@@ -10,6 +9,7 @@ class Steady {
         this.docsPath = '/';
         this.apiPath = '/';
         this.staticContentDir = null;
+        this.httpAttach = {};
         this.customTypes = [];
         this.middleware = [];
         this.port = 5000;
@@ -22,6 +22,7 @@ class Steady {
         this.docsPath = options.docsPath ? options.docsPath : this.docsPath;
         this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
         this.staticContentDir = options.staticContentDir ? options.staticContentDir : this.staticContentDir;
+        this.httpAttach = options.httpAttach ? options.httpAttach : this.httpAttach;
         // middleware
         this.middleware = options.middleware ? options.middleware : this.middleware;
         // create custom types
@@ -40,6 +41,10 @@ class Steady {
             console.error(e);
             process.exit(0);
         }
+    }
+    // Get attached http functionality (Socket.io etc...)
+    attachment(name) {
+        return this.server.app.get(name);
     }
     // Wrap Express get request handler
     get(url, handler) {
@@ -72,7 +77,8 @@ class Steady {
             apiPath: this.apiPath,
             customTypes: this.customTypes,
             middleware: this.middleware,
-            staticContentDir: this.staticContentDir
+            staticContentDir: this.staticContentDir,
+            httpAttach: this.httpAttach
         };
     }
     // load routes from files
@@ -104,7 +110,7 @@ class Steady {
     }
     // start up the HTTP server
     startHttpServer() {
-        this.httpServer = http.createServer(this.server.app);
+        this.httpServer = this.server.server;
         this.httpServer.listen(this.port);
         this.httpServer.on('error', this.onError.bind(this));
         this.httpServer.on('listening', this.onListening.bind(this));

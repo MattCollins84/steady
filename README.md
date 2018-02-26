@@ -9,6 +9,8 @@ Features include:
 * Parameter validation via [Joi](https://github.com/hapijs/joi)
 * Customisable parameter types
 * Basic [Typescript support](#typescript)
+* Allows custom static content (HTML, etc...)
+* Attach other HTTP components to the Steady server (such as Socket.IO)
 
 ## Basic usage
 To install, do `npm install steady-api`
@@ -365,6 +367,39 @@ You can also use `app.post`, `app.put`, `app.delete` or `app.all` - just like in
 One of the advantages of using Steady is that documentation is auto-generated for you!
 
 By default, the docs will be available at `/` but can be changed by specifying a `docsPath` when configuring your Steady API.
+
+### Static Content
+Steady allows you to serve out static content, simply provide the `staticContentDir` option when starting your app, pointing Steady to the location of your static content. All content is served out at `/`.
+
+````javascript
+const Steady = require('steady-api').Steady;
+
+const app = new Steady({
+  controllersDir: './controllers',
+  routesDir: './routes',
+  apiName: 'Example API',
+  staticContentDir: './content'
+});
+````
+
+### Attach other HTTP Components
+If you want to attach other HTTP Components (such as [Socket.IO](http://socket.io)) to your Steady app, you can do this by defining the `httpAttach` object as shown here:
+
+````javascript
+const Steady = require('steady-api').Steady;
+const io = require('socket.io')
+
+const app = new Steady({
+  controllersDir: './controllers',
+  routesDir: './routes',
+  apiName: 'Example API',
+  httpAttach: {
+    io: io
+  }
+});
+````
+
+_note: this experimental and only tested with Socket.IO. As long as the component you wish to use attaches to the node `http` server in the same way as Socket.IO, it should be fine_
 
 ## Typescript
 Steady also has some basic [Typescript](http://typescriptlang.org) support.

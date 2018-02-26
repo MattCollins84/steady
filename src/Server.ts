@@ -2,7 +2,8 @@ import * as express from 'express';
 import * as fileupload from 'express-fileupload';
 import * as ejs from 'ejs';
 import * as path from 'path';
-import { ICustomType } from './Steady';
+import * as http from 'http';
+import { ICustomType, IHttpAttach } from './Steady';
 import { Routes } from './Routes';
 import ApiRouter from './ApiRouter';
 import { RequestHandler, ErrorRequestHandler } from 'express';
@@ -14,12 +15,14 @@ export interface IServerOptions {
   customTypes?: ICustomType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[]
   staticContentDir?: string
+  httpAttach?: IHttpAttach
 }
 
 class Server {
 
   // set app to be of type express.Application
   public app: express.Application;
+  public server: http.Server;
   private routes: Routes;
   private controllers;
   private port: number;
@@ -28,14 +31,17 @@ class Server {
     docsPath: '/',
     apiPath: '/',
     customTypes: [],
-    middleware: []
+    middleware: [],
+    httpAttach: {}
   }
 
   constructor(routes, controllers, options) {
     this.app = express();
+    this.server = http.createServer(this.app);
     this.routes = new Routes(routes);
     this.controllers = controllers;
     this.applyOptions(options);
+    this.attachHttpComponents();
     this.config();
     this.setupRoutes();
   }
@@ -70,6 +76,13 @@ class Server {
 
     // custom middleware
     this.options.middleware.forEach(middleware => this.app.use(middleware));
+  }
+
+  // attach http components
+  public attachHttpComponents() {
+    for (let attach in this.options.httpAttach) {
+      this.app.set(attach, this.options.httpAttach[attach](this.server));
+    }
   }
 
   // application routes
