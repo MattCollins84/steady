@@ -3,16 +3,18 @@ import * as fileupload from 'express-fileupload';
 import * as ejs from 'ejs';
 import * as path from 'path';
 import * as http from 'http';
-import { ICustomType, IHttpAttach } from './Steady';
+import { IParamType, IHttpAttach } from './Steady';
 import { Routes } from './Routes';
 import ApiRouter from './ApiRouter';
 import { RequestHandler, ErrorRequestHandler } from 'express';
+import Validator from './Validator';
+import Documentation from './Documentation';
 
 export interface IServerOptions {
   apiName?: string
   docsPath?: string
   apiPath?: string
-  customTypes?: ICustomType[],
+  customTypes?: IParamType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[]
   staticContentDir?: string
   httpAttach?: IHttpAttach
@@ -59,10 +61,7 @@ class Server {
   public config(): void {
 
     // handling our views for the docs
-    this.app.engine('.html', ejs.__express);
     this.app.use('/docs-assets', express.static(path.join(__dirname, '../public')));
-    this.app.set('views', path.join(__dirname, '../views'));
-    this.app.set('view engine', 'html');
 
     // static directory for other content
     if (this.options.staticContentDir) {
@@ -90,15 +89,29 @@ class Server {
 
     // Load API docs
     this.app.get(this.options.docsPath, (req, res) => {
-      res.render('docs', {
-        apiName: this.options.apiName,
-        routes: this.routes.getDocsRoutes()
-      });
+      res.sendFile(path.join(__dirname, '../views', 'routes.html'));
+    });
+
+    this.app.get(`${this.options.docsPath}/types`, (req, res) => {
+      res.sendFile(path.join(__dirname, '../views', 'types.html'));
+    });
+
+    this.app.get(`${this.options.docsPath}/:type`, (req, res) => {
+      res.sendFile(path.join(__dirname, '../views', 'types.html'));
     });
 
     // load API routes from config
     const apiRouter: ApiRouter = new ApiRouter(this.routes, this.controllers, this.options.customTypes);
     this.app.use(this.options.apiPath, apiRouter.router);
+
+    // API Docs JSON data
+    this.app.get(`/documentation.json`, (req, res) => {
+      const validator = new Validator([], []);
+      validator.addCustomTypes(apiRouter.customTypes);
+
+      const docs = new Documentation(this.routes.getDocsRoutes(), validator.types, this.options.apiName, this.options.apiPath);
+      res.send(docs.toJSON());
+    });
     
   }
 }

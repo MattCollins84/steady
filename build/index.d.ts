@@ -26,15 +26,16 @@ export interface ISteadyOptions {
   apiName?: string,
   docsPath?: string,
   apiPath?: string,
-  customTypes?: ICustomType[],
+  customTypes?: IParamType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[],
   staticContentDir?: string
   httpAttach?: IHttpAttach
 }
-export interface ICustomType {
+export interface IParamType {
   name: string
-  validation: Joi.AnySchema
-  example?: string
+  description: string
+  validator: (any)
+  example: any
 }
 export interface IErrorData {
   errorMessage: string

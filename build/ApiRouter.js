@@ -9,7 +9,10 @@ class ApiRouter {
         this.router = express_1.Router();
         this.routes = routes;
         this.controllers = controllers;
-        this.customTypes = customTypes;
+        this.customTypes = customTypes.reduce((customTypes, type) => {
+            customTypes[type.name] = type;
+            return customTypes;
+        }, {});
         this.routes.routes.forEach(route => {
             switch (route.method.toLowerCase()) {
                 case "get":

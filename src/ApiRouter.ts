@@ -3,24 +3,31 @@ import { Routes, IRoute, IRouteParameter } from './Routes';
 import Validator from './Validator';
 import { ErrorResponse, IErrorData } from './ErrorResponse';
 import { SuccessResponse, ISuccessData } from './SuccessResponse';
-import { ICustomType } from './Steady';
+import { IParamType } from './Steady';
 
 interface IFilesRequest extends Request {
   files?: any
+}
+
+export interface ITypesObject {
+  [key: string]: IParamType;
 }
 
 export default class ApiRouter {
 
   public router: Router;
   public routes: Routes;
+  public customTypes: ITypesObject;
   private controllers;
-  private customTypes: ICustomType[];
 
-  constructor(routes: Routes, controllers, customTypes: ICustomType[] = []) {
+  constructor(routes: Routes, controllers, customTypes: IParamType[] = []) {
     this.router = Router();
     this.routes = routes;
     this.controllers = controllers;
-    this.customTypes = customTypes;
+    this.customTypes = customTypes.reduce((customTypes, type): ITypesObject => {
+      customTypes[type.name] = type;
+      return customTypes;
+    }, {})
 
     this.routes.routes.forEach(route => {
       switch (route.method.toLowerCase()) {
@@ -34,7 +41,7 @@ export default class ApiRouter {
           console.error(`Invalid route method ${route.method}`);
           break;
       }
-    })
+    });
   }
 
   // TODO: Use correct response format
@@ -47,7 +54,6 @@ export default class ApiRouter {
     let controller = this.controllers[route.controller];
     let action = controller[route.action] || this.defaultAction;
     this.router[route.method](route.url, (req: IFilesRequest, res: Response) => {
-
       let values = route.method === 'get' ? req.query : req.body;
       const validator = new Validator(route.params, Object.assign({}, values, req.files));
       validator.addCustomTypes(this.customTypes);

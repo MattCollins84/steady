@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const fileupload = require("express-fileupload");
-const ejs = require("ejs");
 const path = require("path");
 const http = require("http");
 const Routes_1 = require("./Routes");
 const ApiRouter_1 = require("./ApiRouter");
+const Validator_1 = require("./Validator");
+const Documentation_1 = require("./Documentation");
 class Server {
     constructor(routes, controllers, options) {
         this.options = {
@@ -33,10 +34,7 @@ class Server {
     // application config
     config() {
         // handling our views for the docs
-        this.app.engine('.html', ejs.__express);
         this.app.use('/docs-assets', express.static(path.join(__dirname, '../public')));
-        this.app.set('views', path.join(__dirname, '../views'));
-        this.app.set('view engine', 'html');
         // static directory for other content
         if (this.options.staticContentDir) {
             this.app.use(express.static(path.join(this.options.staticContentDir)));
@@ -58,14 +56,24 @@ class Server {
     setupRoutes() {
         // Load API docs
         this.app.get(this.options.docsPath, (req, res) => {
-            res.render('docs', {
-                apiName: this.options.apiName,
-                routes: this.routes.getDocsRoutes()
-            });
+            res.sendFile(path.join(__dirname, '../views', 'routes.html'));
+        });
+        this.app.get(`${this.options.docsPath}/types`, (req, res) => {
+            res.sendFile(path.join(__dirname, '../views', 'types.html'));
+        });
+        this.app.get(`${this.options.docsPath}/:type`, (req, res) => {
+            res.sendFile(path.join(__dirname, '../views', 'types.html'));
         });
         // load API routes from config
         const apiRouter = new ApiRouter_1.default(this.routes, this.controllers, this.options.customTypes);
         this.app.use(this.options.apiPath, apiRouter.router);
+        // API Docs JSON data
+        this.app.get(`/documentation.json`, (req, res) => {
+            const validator = new Validator_1.default([], []);
+            validator.addCustomTypes(apiRouter.customTypes);
+            const docs = new Documentation_1.default(this.routes.getDocsRoutes(), validator.types, this.options.apiName, this.options.apiPath);
+            res.send(docs.toJSON());
+        });
     }
 }
 // export

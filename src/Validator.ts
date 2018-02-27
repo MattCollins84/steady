@@ -1,14 +1,17 @@
 import * as Joi from 'joi';
 import { IRouteParameter } from './Routes';
-import { ICustomType } from './Steady';
+import { IParamType } from './Steady';
+import { ITypesObject } from './ApiRouter';
+import Types from './types';
 
 export default class Validator {
   
   public params: IRouteParameter[];
   public values;
   public valid: boolean = true;
-  private types: string[] = ['string', 'number', 'boolean', 'enum', 'date', 'url', 'email', 'file'];
-  private customTypes: ICustomType[] = [];
+  public types: ITypesObject = {};
+  private defaultTypes: ITypesObject = Types;
+  private customTypes: ITypesObject = {};
   private errors: string[];
   
   constructor(params, values) {
@@ -17,17 +20,17 @@ export default class Validator {
     this.applyDefaults();
   }
 
-  public addCustomTypes(types: ICustomType[]) {
+  public addCustomTypes(types: ITypesObject) {
     this.customTypes = types;
+    this.types = Object.assign(
+      {},
+      this.defaultTypes,
+      this.customTypes
+    )
   }
 
   public getValidTypes(): string[] {
-    let types = [].concat(this.types);
-    const customTypes: string[] = this.customTypes.map(customType => {
-      return customType.name;
-    });
-    types = types.concat(customTypes);
-    return types;
+    return Object.keys(this.types);
   }
 
   public isValid(): boolean {
@@ -38,64 +41,6 @@ export default class Validator {
     return this.errors;
   }
 
-  private validateString(param) {
-    let x = Joi.string();
-    if (param.regex) {
-      let regex = new RegExp(param.regex);
-      x = x.regex(regex);
-    }
-    return x;
-  }
-
-  private validateNumber(param) {
-    let x = Joi.number();
-    if (param.min && typeof param.min === 'number') {
-      x = x.min(param.min)
-    }
-    if (param.max && typeof param.max === 'number') {
-      x = x.max(param.max)
-    }
-    return x;
-  }
-
-  private validateBoolean(param: IRouteParameter) {
-    this.values[param.name] = this.values[param.name] === 'true' ? true : false;
-    let x = Joi.boolean();
-    return x;
-  }
-
-  private validateEnum(param: IRouteParameter) {
-    let x = Joi.string().valid(param.values || []);
-    return x;
-  }
-
-  private validateDate(param: IRouteParameter) {
-    let x = Joi.date().iso();
-    return x;
-  }
-
-  private validateUrl(param: IRouteParameter) {
-    let x = Joi.string().uri();
-    return x;
-  }
-  
-  private validateEmail(param: IRouteParameter) {
-    let x = Joi.string().email();
-    return x;
-  }
-    
-  private validateFile(param: IRouteParameter) {
-    let keys = Joi.object().keys({
-      name: Joi.string(),
-      mv: Joi.func(),
-      data: Joi.any(),
-      encoding: Joi.string(),
-      mimetype: Joi.string()
-    });
-    let x = keys.optionalKeys('encoding', 'mimetype');
-    return x;
-  }
-
   private validate(): boolean {
     const schema = {};
     this.params.forEach(param => {
@@ -104,46 +49,14 @@ export default class Validator {
         throw new Error(`Invalid parameter type '${param.type}' set for parameter: '${param.name}'`);
       }
 
-      let x = null;
-      switch (param.type) {
-        case "string":
-          x = this.validateString(param);
-          break;
-        case "number":
-          x = this.validateNumber(param);
-          break;
-        case "boolean":
-          x = this.validateBoolean(param);
-          break;
-        case "enum":
-          x = this.validateEnum(param);
-          break;
-        case "date":
-          x = this.validateDate(param);
-          break;
-        case "url":
-          x = this.validateUrl(param);
-          break;
-        case "email":
-          x = this.validateEmail(param);
-          break;
-        case "file":
-          x = this.validateFile(param);
-          break;
-        // custom type
-        default:
-          let customType: ICustomType = this.customTypes.filter((customType: ICustomType) => {
-            return customType.name === param.type;
-          })[0];
-          x = customType.validation;
-          break;
-      }
+      const type = this.types[param.type];
+      let validator = type.validator(param);
 
       if (param.required === true) {
-        x = x.required();
+        validator = validator.required();
       }
 
-      schema[param.name] = x;
+      schema[param.name] = validator;
     });
 
     // perform the validation
