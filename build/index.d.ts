@@ -25,6 +25,7 @@ export interface ISteadyOptions {
   port?: number,
   apiName?: string,
   docsPath?: string,
+  disableDocs?: boolean
   apiPath?: string,
   customTypes?: IParamType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[],

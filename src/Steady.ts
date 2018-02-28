@@ -16,6 +16,7 @@ export interface ISteadyOptions {
   port?: number,
   apiName?: string,
   docsPath?: string,
+  disableDocs?: boolean,
   apiPath?: string,
   customTypes?: IParamType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[],
@@ -34,6 +35,7 @@ export class Steady {
 
   private apiName: string = 'API';
   private docsPath: string = '/';
+  private disableDocs: boolean = false;
   private apiPath: string = '/';
   private staticContentDir: string = null;
   private httpAttach: object = {};
@@ -58,6 +60,7 @@ export class Steady {
     this.port = options.port ? options.port : this.port;
     this.apiName = options.apiName ? options.apiName : this.apiName;
     this.docsPath = options.docsPath ? options.docsPath : this.docsPath;
+    this.disableDocs = options.disableDocs ? options.disableDocs : this.disableDocs;
     this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
     this.staticContentDir = options.staticContentDir ? options.staticContentDir : this.staticContentDir;
     this.httpAttach = options.httpAttach ? options.httpAttach : this.httpAttach;
@@ -123,6 +126,7 @@ export class Steady {
     this.serverConfig = {
       apiName: this.apiName,
       docsPath: this.docsPath,
+      disableDocs: this.disableDocs,
       apiPath: this.apiPath,
       customTypes: this.customTypes,
       middleware: this.middleware,

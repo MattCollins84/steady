@@ -32,9 +32,10 @@ export default class Documentation {
       urlParams.map(param => param.substr(1, param.length-1))
       .forEach(param => {
         route.params.unshift({
-          name: param,
+          name: `param`,
           type: "string",
-          required: true
+          required: true,
+          urlParam: true
         });
       })
       if (!privateRoute) {

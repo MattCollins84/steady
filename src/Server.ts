@@ -13,6 +13,7 @@ import Documentation from './Documentation';
 export interface IServerOptions {
   apiName?: string
   docsPath?: string
+  disableDocs?: boolean
   apiPath?: string
   customTypes?: IParamType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[]
@@ -31,13 +32,14 @@ class Server {
   private options: IServerOptions = {
     apiName: 'API',
     docsPath: '/',
+    disableDocs: false,
     apiPath: '/',
     customTypes: [],
     middleware: [],
     httpAttach: {}
   }
 
-  constructor(routes, controllers, options) {
+  constructor(routes, controllers, options: IServerOptions) {
     this.app = express();
     this.server = http.createServer(this.app);
     this.routes = new Routes(routes);
@@ -88,17 +90,19 @@ class Server {
   public setupRoutes(): void {
 
     // Load API docs
-    this.app.get(this.options.docsPath, (req, res) => {
-      res.sendFile(path.join(__dirname, '../views', 'routes.html'));
-    });
+    if (this.options.disableDocs === false) {
+      this.app.get(this.options.docsPath, (req, res) => {
+        res.sendFile(path.join(__dirname, '../views', 'routes.html'));
+      });
 
-    this.app.get(`${this.options.docsPath}/types`, (req, res) => {
-      res.sendFile(path.join(__dirname, '../views', 'types.html'));
-    });
+      this.app.get(`${this.options.docsPath}/types`, (req, res) => {
+        res.sendFile(path.join(__dirname, '../views', 'types.html'));
+      });
 
-    this.app.get(`${this.options.docsPath}/:type`, (req, res) => {
-      res.sendFile(path.join(__dirname, '../views', 'types.html'));
-    });
+      this.app.get(`${this.options.docsPath}/:type`, (req, res) => {
+        res.sendFile(path.join(__dirname, '../views', 'types.html'));
+      });
+    }
 
     // load API routes from config
     const apiRouter: ApiRouter = new ApiRouter(this.routes, this.controllers, this.options.customTypes);

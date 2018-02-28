@@ -7,6 +7,7 @@ class Steady {
     constructor(options) {
         this.apiName = 'API';
         this.docsPath = '/';
+        this.disableDocs = false;
         this.apiPath = '/';
         this.staticContentDir = null;
         this.httpAttach = {};
@@ -20,6 +21,7 @@ class Steady {
         this.port = options.port ? options.port : this.port;
         this.apiName = options.apiName ? options.apiName : this.apiName;
         this.docsPath = options.docsPath ? options.docsPath : this.docsPath;
+        this.disableDocs = options.disableDocs ? options.disableDocs : this.disableDocs;
         this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
         this.staticContentDir = options.staticContentDir ? options.staticContentDir : this.staticContentDir;
         this.httpAttach = options.httpAttach ? options.httpAttach : this.httpAttach;
@@ -74,6 +76,7 @@ class Steady {
         this.serverConfig = {
             apiName: this.apiName,
             docsPath: this.docsPath,
+            disableDocs: this.disableDocs,
             apiPath: this.apiPath,
             customTypes: this.customTypes,
             middleware: this.middleware,

@@ -13,6 +13,7 @@ class Server {
         this.options = {
             apiName: 'API',
             docsPath: '/',
+            disableDocs: false,
             apiPath: '/',
             customTypes: [],
             middleware: [],
@@ -55,15 +56,17 @@ class Server {
     // application routes
     setupRoutes() {
         // Load API docs
-        this.app.get(this.options.docsPath, (req, res) => {
-            res.sendFile(path.join(__dirname, '../views', 'routes.html'));
-        });
-        this.app.get(`${this.options.docsPath}/types`, (req, res) => {
-            res.sendFile(path.join(__dirname, '../views', 'types.html'));
-        });
-        this.app.get(`${this.options.docsPath}/:type`, (req, res) => {
-            res.sendFile(path.join(__dirname, '../views', 'types.html'));
-        });
+        if (this.options.disableDocs === false) {
+            this.app.get(this.options.docsPath, (req, res) => {
+                res.sendFile(path.join(__dirname, '../views', 'routes.html'));
+            });
+            this.app.get(`${this.options.docsPath}/types`, (req, res) => {
+                res.sendFile(path.join(__dirname, '../views', 'types.html'));
+            });
+            this.app.get(`${this.options.docsPath}/:type`, (req, res) => {
+                res.sendFile(path.join(__dirname, '../views', 'types.html'));
+            });
+        }
         // load API routes from config
         const apiRouter = new ApiRouter_1.default(this.routes, this.controllers, this.options.customTypes);
         this.app.use(this.options.apiPath, apiRouter.router);

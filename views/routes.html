@@ -97,12 +97,12 @@
 
                       <div v-if="param.complex" class="form-group">
                         <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <textarea class="form-control" v-bind:ref="param.name" rows="3"></textarea>
+                        <textarea class="form-control" v-bind:ref="param.name" v-bind:id="param.name" rows="3"></textarea>
                       </div>
 
                       <div v-else-if="param.type == 'enum'" class="form-group">
                         <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <select class="form-control" v-bind:ref="param.name">
+                        <select class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
                           <option v-if="!param.required" value="">- select one -</option>
                           <option :selected="value == param.default" v-for="value in param.values" v-bind:value="value">{{ value }}</option>
                         </select>
@@ -110,24 +110,29 @@
 
                       <div v-else-if="param.type == 'boolean'" class="form-group">
                         <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <select class="form-control" v-bind:ref="param.name">
+                        <select class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
                           <option v-if="!param.required" value="">- select one -</option>
                           <option value="true">TRUE</option>
                           <option value="false">FALSE</option>
                         </select>
                       </div>
 
-                      <div v-else class="form-group">
+                      <div v-else-if="param.type == 'file'" class="form-group">
                         <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <input type="text" class="form-control" v-bind:ref="param.name" v-bind:placeholder="param.default ? param.default : param.example">
+                        <input type="file" class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
+                      </div>
+
+                      <div v-else class="form-group">
+                        <label class="font-weight-bold">{{ param.name }} <span v-if="param.urlParam" class="badge badge-warning">URL Parameter</span> <span v-if="param.required" class="badge badge-info">Required</span></label>
+                        <input type="text" class="form-control" v-bind:urlParam="param.urlParam" v-bind:ref="param.name" v-bind:id="param.name" v-bind:placeholder="param.default ? param.default : param.example">
                         <small class="form-text text-muted">Example: <em>{{ param.example }}</em></small>
                         <small v-if="param.default" class="form-text text-muted">Default: <em>{{ param.default }}</em></small>
                       </div>
 
                     </div>
 
-                    <input type="hidden" ref="_method" v-bind:value="route.method">
-                    <input type="hidden" ref="_url" v-bind:value="route.url">
+                    <input type="hidden" ref="_method" id="_method" v-bind:value="route.method">
+                    <input type="hidden" ref="_url" id="_url" v-bind:value="route.url">
                     <button type="submit" class="btn btn-primary">Submit</button>
                     
                   </form>
@@ -157,6 +162,7 @@
     <script src='/docs-assets/js/vue.js'></script>
     <script src='/docs-assets/js/vue-resource.js'></script>
     <script>
+      var g;
       var routes = new Vue({
         el: '#routes',
         data: {
@@ -193,34 +199,73 @@
             // data defaults
             this.apiResponse = null;
             this.apiError = false;
-            var data = {
-              params:{}
-            };
+            
+            // capture form data
+            var urlParamData = {};
+            var data = new FormData();
+            var target = event.target;
+            var paramKeys = Object.keys(target).reverse();
+            var url = null;
+            var method = null;
+            paramKeys.forEach(function(key) {
+              
+              var input = target[key];
 
-            // capture the data from this form, including method and url
-            for (var name in this.$refs) {
-              var ref = this.$refs[name];
-              if (ref && ref[0] && ref[0].value) {
-                if (name.match(/^_/)) {
-                  data[name] = ref[0].value;
-                }
-                else {
-                  data.params[name] = ref[0].value;
-                }
+              var urlParam = Object.keys(input.attributes).reduce(function(urlParam, key) {
+                if (urlParam) return urlParam;
+                return (input.attributes[key].name === "urlparam" && input.attributes[key].value === "true");
+              }, false);
+
+              if (urlParam) {
+                urlParamData[input.id] = input.value;
+                return;
               }
-            }
+              
+              if (!input.value || !input.id) return;
+
+              if (input.id === '_url') {
+                url = input.value;
+                return;
+              }
+
+              if (input.id === '_method') {
+                method = input.value;
+                return;
+              }
+
+              if (input.type === 'file') {
+                data.append(input.id, input.files[0], input.files[0].name);
+                return;
+              }
+
+              data.append(input.id, input.value);
+
+            });
 
             // replace URL params with actual data
-            var urlParams = data._url.match(/:[a-zA-Z0-9_]+/g) || [];
+            var urlParams = url.match(/:[a-zA-Z0-9_]+/g) || [];
             urlParams.forEach(function(param) {
               const paramName = param.substr(1, param.length - 1);
-              data._url = data._url.replace(param, data.params[paramName]);
-              delete data.params[paramName];
+              url = url.replace(param, urlParamData[paramName]);
             })
 
             // POST this data to the app
-            var options = { responseType: 'json' }
-            this.$http[data._method.toLowerCase()](data._url, data.params, options)
+            var options = { 
+              responseType: 'json'
+            }
+
+            if (method.toLowerCase() === 'get') {
+              var pairs = [];
+              for(var pair of data.entries()) {
+                pairs.push(pair[0] + '=' + pair[1]);
+              }
+              if (pairs.length) {
+                url += "?" + pairs.join("&");
+              }
+              data = options;
+            }
+
+            this.$http[method.toLowerCase()](url, data, options)
             .then(
               function(response) {
                 this.apiResponse = response.body
