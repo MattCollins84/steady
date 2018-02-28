@@ -18,12 +18,12 @@ class Documentation {
             delete route.controller;
             delete route.action;
             route.method = route.method.toUpperCase();
-            route.url = `${this.root}${route.url}`;
+            route.url = `${this.root}${route.url}`.replace(/\/\//g, '/');
             const urlParams = route.url.match(/:[a-zA-Z0-9_]+/g) || [];
             urlParams.map(param => param.substr(1, param.length - 1))
                 .forEach(param => {
                 route.params.unshift({
-                    name: `param`,
+                    name: param,
                     type: "string",
                     required: true,
                     urlParam: true
