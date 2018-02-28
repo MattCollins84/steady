@@ -6,7 +6,7 @@ const Server_1 = require("./Server");
 class Steady {
     constructor(options) {
         this.apiName = 'API';
-        this.docsPath = '/';
+        this.docsPath = '/docs';
         this.disableDocs = false;
         this.apiPath = '/';
         this.staticContentDir = null;

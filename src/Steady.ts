@@ -34,7 +34,7 @@ export interface IParamType {
 export class Steady {
 
   private apiName: string = 'API';
-  private docsPath: string = '/';
+  private docsPath: string = '/docs';
   private disableDocs: boolean = false;
   private apiPath: string = '/';
   private staticContentDir: string = null;
