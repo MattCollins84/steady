@@ -3,7 +3,7 @@ import * as fileupload from 'express-fileupload';
 import * as ejs from 'ejs';
 import * as path from 'path';
 import * as http from 'http';
-import { IParamType, IHttpAttach } from './Steady';
+import { IParamType, IHttpAttach, IDocsMeta } from './Steady';
 import { Routes } from './Routes';
 import ApiRouter from './ApiRouter';
 import { RequestHandler, ErrorRequestHandler } from 'express';
@@ -18,7 +18,8 @@ export interface IServerOptions {
   customTypes?: IParamType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[]
   staticContentDir?: string
-  httpAttach?: IHttpAttach
+  httpAttach?: IHttpAttach,
+  docsMeta?: IDocsMeta
 }
 
 class Server {
@@ -36,7 +37,8 @@ class Server {
     apiPath: '/',
     customTypes: [],
     middleware: [],
-    httpAttach: {}
+    httpAttach: {},
+    docsMeta: {}
   }
 
   constructor(routes, controllers, options: IServerOptions) {
@@ -113,7 +115,7 @@ class Server {
       const validator = new Validator([], []);
       validator.addCustomTypes(apiRouter.customTypes);
 
-      const docs = new Documentation(this.routes.getDocsRoutes(), validator.types, this.options.apiName, this.options.apiPath);
+      const docs = new Documentation(this.routes.getDocsRoutes(), validator.types, this.options);
       res.send(docs.toJSON());
     });
     

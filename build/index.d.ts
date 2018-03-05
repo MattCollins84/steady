@@ -19,6 +19,10 @@ export interface IHttpAttach {
   [key: string]: any;
 }
 
+export interface IDocsMeta {
+  [key: string]: any;
+}
+
 export interface ISteadyOptions {
   controllersDir: string,
   routesDir: string,
@@ -30,8 +34,10 @@ export interface ISteadyOptions {
   customTypes?: IParamType[],
   middleware?: (RequestHandler|ErrorRequestHandler)[],
   staticContentDir?: string
-  httpAttach?: IHttpAttach
+  httpAttach?: IHttpAttach,
+  docsMeta?: IDocsMeta
 }
+
 export interface IParamType {
   name: string
   description: string

@@ -1,4 +1,6 @@
 import { ITypesObject } from './ApiRouter';
+import { IServerOptions } from './Server';
+import { IDocsMeta } from './Steady';
 
 export default class Documentation {
 
@@ -6,13 +8,15 @@ export default class Documentation {
   public types: ITypesObject;
   public name: string;
   public root: string;
+  public meta: IDocsMeta;
 
 
-  constructor(routes, types, name, root) {
+  constructor(routes, types, options: IServerOptions) {
     this.routes = routes;
     this.types = types;
-    this.name = name;
-    this.root = root
+    this.name = options.apiName;
+    this.root = options.apiPath;
+    this.meta = options.docsMeta
   }
 
   toJSON() {
@@ -73,6 +77,7 @@ export default class Documentation {
     const jsonData = {
       name: this.name,
       apiRoot: this.root,
+      meta: this.meta,
       routes,
       types
     }

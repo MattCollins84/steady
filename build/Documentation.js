@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Documentation {
-    constructor(routes, types, name, root) {
+    constructor(routes, types, options) {
         this.routes = routes;
         this.types = types;
-        this.name = name;
-        this.root = root;
+        this.name = options.apiName;
+        this.root = options.apiPath;
+        this.meta = options.docsMeta;
     }
     toJSON() {
         // get the routes, removing controller and action function data
@@ -61,6 +62,7 @@ class Documentation {
         const jsonData = {
             name: this.name,
             apiRoot: this.root,
+            meta: this.meta,
             routes,
             types
         };

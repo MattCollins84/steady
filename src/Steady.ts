@@ -10,6 +10,10 @@ export interface IHttpAttach {
   [key: string]: any;
 }
 
+export interface IDocsMeta {
+  [key: string]: any;
+}
+
 export interface ISteadyOptions {
   controllersDir: string,
   routesDir: string,
@@ -22,6 +26,7 @@ export interface ISteadyOptions {
   middleware?: (RequestHandler|ErrorRequestHandler)[],
   staticContentDir?: string,
   httpAttach?: IHttpAttach
+  docsMeta?: IDocsMeta
 }
 
 export interface IParamType {
@@ -38,7 +43,8 @@ export class Steady {
   private disableDocs: boolean = false;
   private apiPath: string = '/';
   private staticContentDir: string = null;
-  private httpAttach: object = {};
+  private httpAttach: IHttpAttach = {};
+  private docsMeta: IDocsMeta = {};
   private customTypes: IParamType[] = [];
   private middleware: (RequestHandler|ErrorRequestHandler)[] = [];
   private controllersDir: string;
@@ -64,6 +70,7 @@ export class Steady {
     this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
     this.staticContentDir = options.staticContentDir ? options.staticContentDir : this.staticContentDir;
     this.httpAttach = options.httpAttach ? options.httpAttach : this.httpAttach;
+    this.docsMeta = options.docsMeta ? options.docsMeta : this.docsMeta;
 
     // middleware
     this.middleware = options.middleware ? options.middleware : this.middleware;
@@ -131,7 +138,8 @@ export class Steady {
       customTypes: this.customTypes,
       middleware: this.middleware,
       staticContentDir: this.staticContentDir,
-      httpAttach: this.httpAttach
+      httpAttach: this.httpAttach,
+      docsMeta: this.docsMeta
     };
   }
 

@@ -17,7 +17,8 @@ class Server {
             apiPath: '/',
             customTypes: [],
             middleware: [],
-            httpAttach: {}
+            httpAttach: {},
+            docsMeta: {}
         };
         this.app = express();
         this.server = http.createServer(this.app);
@@ -74,7 +75,7 @@ class Server {
         this.app.get(`/documentation.json`, (req, res) => {
             const validator = new Validator_1.default([], []);
             validator.addCustomTypes(apiRouter.customTypes);
-            const docs = new Documentation_1.default(this.routes.getDocsRoutes(), validator.types, this.options.apiName, this.options.apiPath);
+            const docs = new Documentation_1.default(this.routes.getDocsRoutes(), validator.types, this.options);
             res.send(docs.toJSON());
         });
     }

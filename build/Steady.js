@@ -11,6 +11,7 @@ class Steady {
         this.apiPath = '/';
         this.staticContentDir = null;
         this.httpAttach = {};
+        this.docsMeta = {};
         this.customTypes = [];
         this.middleware = [];
         this.port = 5000;
@@ -25,6 +26,7 @@ class Steady {
         this.apiPath = options.apiPath ? options.apiPath : this.apiPath;
         this.staticContentDir = options.staticContentDir ? options.staticContentDir : this.staticContentDir;
         this.httpAttach = options.httpAttach ? options.httpAttach : this.httpAttach;
+        this.docsMeta = options.docsMeta ? options.docsMeta : this.docsMeta;
         // middleware
         this.middleware = options.middleware ? options.middleware : this.middleware;
         // create custom types
@@ -81,7 +83,8 @@ class Steady {
             customTypes: this.customTypes,
             middleware: this.middleware,
             staticContentDir: this.staticContentDir,
-            httpAttach: this.httpAttach
+            httpAttach: this.httpAttach,
+            docsMeta: this.docsMeta
         };
     }
     // load routes from files

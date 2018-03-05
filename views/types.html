@@ -6,90 +6,104 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Cloudview Developer Docs</title>
+    <title></title>
     <link href="/docs-assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="/docs-assets/css/custom.css" rel="stylesheet">
   </head>
 
   <body>
     
-    <header>
-      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="/">Cloudview Developer Docs</a>
-      </nav>
-    </header>
-    
-    <div class="container-fluid" id="types">
-      
-      <div class="row">
-        
-        <nav class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar">
-          <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-              <a class="nav-link" :href="docsRoot">Routes</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" :href="docsRoot + '/types'">Type definitions</a>
-            </li>
-          </ul>
-          <ul class="nav nav-pills flex-column">
-            <li v-for="type in types" class="nav-item">
-              <a class="nav-link" :href="docsRoot + '/' + type.name">
-                {{ type.name }}
-              </a>
-            </li>
-          </ul>
+    <div id="app">
+
+      <header>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+          <a class="navbar-brand" href="/">{{ apiName }}</a>
         </nav>
+      </header>
+      
+      <div class="container-fluid">
+        
+        <div class="row">
+          
+          <nav class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar">
+            <ul class="nav nav-pills flex-column">
+              <li class="nav-item">
+                <a class="nav-link" :href="docsRoot">Routes</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" :href="docsRoot + '/types'">Type definitions</a>
+              </li>
+            </ul>
+            <ul class="nav nav-pills flex-column">
+              <li v-for="type in types" class="nav-item">
+                <a class="nav-link" :href="docsRoot + '/' + type.name">
+                  {{ type.name }}
+                </a>
+              </li>
+            </ul>
+          </nav>
 
-        <main role="main" class="col-sm-8 ml-sm-auto col-md-9 pt-3">
-          <h1 class="pb-3 mb-3 mt-5">Cloudview Developer Docs</h1>
+          <main role="main" class="col-sm-8 ml-sm-auto col-md-9 pt-3">
+            <h1 class="pb-3 mb-3 mt-5">{{ apiName }}</h1>
 
-          <div class="card" v-if="!selectedType">
-            <div class="card-body">
-              <h2 class="card-title">Type Definitions</h2>
-              <p>The Cloudview API supports a number of different parameter types, select a type from the left to see all the necessary information for working with a particular type.</p>
-            </div>
-          </div>
-
-          <div class="card mb-2" v-for="type in currentTypes">
-            <div class="card-body">
-              <h2 class="card-title" :id="type.name">{{ type.name }}</h2>
-              <h6 class="card-subtitle mb-4 text-muted">{{ type.description }}</h6>
-
-              <h5>Example</h5>
-              <pre><code>{{ type.example }}</code></pre>
-              <div v-if="type.options.length " class="table-responsive mt-4">
-                <h5>Options</h5>
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Option</th>
-                      <th>Required</th>
-                      <th>Description</th>
-                      <th>Example</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="option in type.options">
-                      <td>{{ option.name }}</td>
-                      <td><code>{{ option.required || false}}</code></td>
-                      <td>
-                        <code>{{ option.description }}</code>
-                      </td>
-                      <td>
-                        <pre class="pre-scrollable">{{ option.example }}</pre>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            <div class="card" v-if="selectedType =='types'">
+              <div class="card-body">
+                <h2 class="card-title">Type Definitions</h2>
+                <p>The Cloudview API supports a number of different parameter types, select a type from the left to see all the necessary information for working with a particular type.</p>
               </div>
             </div>
+
+            <div class="card mb-2" v-for="type in currentTypes">
+              <div class="card-body">
+                <h2 class="card-title" :id="type.name">{{ type.name }}</h2>
+                <h6 class="card-subtitle mb-4 text-muted">{{ type.description }}</h6>
+
+                <h5>Example</h5>
+                <pre><code>{{ type.example }}</code></pre>
+                <div v-if="type.options.length " class="table-responsive mt-4">
+                  <h5>Options</h5>
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Option</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="option in type.options">
+                        <td>{{ option.name }}</td>
+                        <td><code>{{ option.required || false}}</code></td>
+                        <td>
+                          <code>{{ option.description }}</code>
+                        </td>
+                        <td>
+                          <pre class="pre-scrollable">{{ option.example }}</pre>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+            </div>
             
-          </div>
+          </main>
           
-        </main>
-        
+        </div>
+
+        <div class="row">
+          
+          <div class="col-sm-4 col-md-3 offset-sm-4 offset-md-3"></div>
+          <div class="col-sm-8 ml-sm-auto col-md-9 pt-3">
+            <p class="text-muted text-center" v-html="meta.copyright"></p>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
 
     <script src="/docs-assets/js/jquery-3.2.1.slim.min.js"></script>
@@ -100,13 +114,15 @@
     <script src='/docs-assets/js/vue-resource.js'></script>
     <script>
       var types = new Vue({
-        el: '#types',
+        el: '#app',
         data: {
           routes: [],
           types: [],
           currentTypes: [],
           selectedType: "",
-          docsRoot: window.location.pathname.replace(/^(.*)\/.*$/, "$1")
+          docsRoot: window.location.pathname.replace(/^(.*)\/.*$/, "$1"),
+          meta: {},
+          apiName: ''
         },
         beforeCreate: function() {
           this.$http.get('/documentation.json')
@@ -120,6 +136,8 @@
                 return type.name === this.selectedType
               }.bind(this));
               window.document.title = response.body.name;
+              this.apiName = response.body.name;
+              this.meta = response.body.meta;
             }.bind(this),
             function(error) {
               console.error(response.error);

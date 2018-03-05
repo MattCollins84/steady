@@ -6,153 +6,167 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Cloudview Developer Docs</title>
+    <title></title>
     <link href="/docs-assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="/docs-assets/css/custom.css" rel="stylesheet">
   </head>
 
   <body>
     
-    <header>
-      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="/">Cloudview Developer Docs</a>
-      </nav>
-    </header>
-    
-    <div class="container-fluid" id="routes">
+    <div id="app">
       
-      <div class="row">
-        
-        <nav class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar">
-      
-          <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-              <a class="nav-link active" :href="docsRoot">Routes</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" :href="docsRoot + '/types'">Type definitions</a>
-            </li>
-          </ul>
-          
-          <ul class="nav nav-pills flex-column">
-            <li v-for="route in routes" class="nav-item">
-              <a class="nav-link" v-bind:href="'#'+route.method+'-'+route.url">
-                <span class="badge float-right" 
-                      v-bind:class="{ 'badge-success': route.method == 'GET', 'badge-warning': route.method == 'POST', 'badge-info': route.method == 'PUT', 'badge-danger': route.method == 'DELETE' }">{{ route.method }}</span>
-                {{ route.url }}
-              </a>
-            </li>
-          </ul>
+      <header>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+          <a class="navbar-brand" href="/">{{ apiName }}</a>
         </nav>
+      </header>
 
-        <main role="main" class="col-sm-8 ml-sm-auto col-md-9 pt-3">
-          <h1 class="pb-3 mb-3 mt-5">Cloudview Developer Docs</h1>
+      <div class="container-fluid">
+        
+        <div class="row">
+          
+          <nav class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar">
+        
+            <ul class="nav nav-pills flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" :href="docsRoot">Routes</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" :href="docsRoot + '/types'">Type definitions</a>
+              </li>
+            </ul>
+            
+            <ul class="nav nav-pills flex-column">
+              <li v-for="route in routes" class="nav-item">
+                <a class="nav-link" v-bind:href="'#'+route.method+'-'+route.url">
+                  <span class="badge float-right" 
+                        v-bind:class="{ 'badge-success': route.method == 'GET', 'badge-warning': route.method == 'POST', 'badge-info': route.method == 'PUT', 'badge-danger': route.method == 'DELETE' }">{{ route.method }}</span>
+                  {{ route.url }}
+                </a>
+              </li>
+            </ul>
+          </nav>
 
-          <div class="card mb-2" v-for="route in routes">
-            <div class="card-body">
-              <h2 class="card-title" :id="route.method+'-'+route.url">
-                <span class="badge float-right" 
-                      v-bind:class="{ 'badge-success': route.method == 'GET', 'badge-warning': route.method == 'POST', 'badge-info': route.method == 'PUT', 'badge-danger': route.method == 'DELETE' }">{{ route.method }}</span>
-                      {{ route.url }}
-              </h2>
-              <p>{{ route.description }}</p>
-              <div class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Parameter</th>
-                      <th>Required</th>
-                      <th>Default</th>
-                      <th>Type</th>
-                      <th>Example</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="param in route.params">
-                      <td>{{ param.name }}</td>
-                      <td>
-                        <code>{{ param.required }}</code>
-                      </td>
-                      <td>
-                        <pre class="pre-scrollable">{{ param.default }}</pre>
-                      </td>
-                      <td><a v-bind:href="docsRoot + '/' + param.type">{{ param.type }}</a></td>
-                      <td>
-                        <pre v-if="param.type != 'enum'" class="pre-scrollable">{{ param.example }}</pre>
-                        <div v-if="param.type == 'enum'">
-                          <em>Accepted values:</em><br />
-                          <pre class="pre-scrollable">{{ param.values.join(", ") }}</pre>
+          <main role="main" class="col-sm-8 ml-sm-auto col-md-9 pt-3">
+            <h1 class="pb-3 mb-3 mt-5">{{ apiName }}</h1>
+
+            <div class="card mb-2" v-for="route in routes">
+              <div class="card-body">
+                <h2 class="card-title" :id="route.method+'-'+route.url">
+                  <span class="badge float-right" 
+                        v-bind:class="{ 'badge-success': route.method == 'GET', 'badge-warning': route.method == 'POST', 'badge-info': route.method == 'PUT', 'badge-danger': route.method == 'DELETE' }">{{ route.method }}</span>
+                        {{ route.url }}
+                </h2>
+                <p>{{ route.description }}</p>
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Required</th>
+                        <th>Default</th>
+                        <th>Type</th>
+                        <th>Example</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="param in route.params">
+                        <td>{{ param.name }}</td>
+                        <td>
+                          <code>{{ param.required }}</code>
+                        </td>
+                        <td>
+                          <pre class="pre-scrollable">{{ param.default }}</pre>
+                        </td>
+                        <td><a v-bind:href="docsRoot + '/' + param.type">{{ param.type }}</a></td>
+                        <td>
+                          <pre v-if="param.type != 'enum'" class="pre-scrollable">{{ param.example }}</pre>
+                          <div v-if="param.type == 'enum'">
+                            <em>Accepted values:</em><br />
+                            <pre class="pre-scrollable">{{ param.values.join(", ") }}</pre>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <button v-on:click="showForm" v-bind:data-route="route.method+'-'+route.url" class="btn btn-sm btn-info">Try it out!</button>
+                </div>
+
+                <div class="card mt-3" v-if="formRoute == route.method+'-'+route.url">
+                  <div class="card-body">
+                    <form v-on:submit="apiRequest">
+                      <div v-for="param in route.params">
+
+                        <div v-if="param.complex" class="form-group">
+                          <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
+                          <textarea class="form-control" v-bind:ref="param.name" v-bind:id="param.name" rows="3"></textarea>
                         </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <button v-on:click="showForm" v-bind:data-route="route.method+'-'+route.url" class="btn btn-sm btn-info">Try it out!</button>
-              </div>
 
-              <div class="card mt-3" v-if="formRoute == route.method+'-'+route.url">
-                <div class="card-body">
-                  <form v-on:submit="apiRequest">
-                    <div v-for="param in route.params">
+                        <div v-else-if="param.type == 'enum'" class="form-group">
+                          <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
+                          <select class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
+                            <option v-if="!param.required" value="">- select one -</option>
+                            <option :selected="value == param.default" v-for="value in param.values" v-bind:value="value">{{ value }}</option>
+                          </select>
+                        </div>
 
-                      <div v-if="param.complex" class="form-group">
-                        <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <textarea class="form-control" v-bind:ref="param.name" v-bind:id="param.name" rows="3"></textarea>
+                        <div v-else-if="param.type == 'boolean'" class="form-group">
+                          <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
+                          <select class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
+                            <option v-if="!param.required" value="">- select one -</option>
+                            <option value="true">TRUE</option>
+                            <option value="false">FALSE</option>
+                          </select>
+                        </div>
+
+                        <div v-else-if="param.type == 'file'" class="form-group">
+                          <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
+                          <input type="file" class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
+                        </div>
+
+                        <div v-else class="form-group">
+                          <label class="font-weight-bold">{{ param.name }} <span v-if="param.urlParam" class="badge badge-warning">URL Parameter</span> <span v-if="param.required" class="badge badge-info">Required</span></label>
+                          <input type="text" class="form-control" v-bind:urlParam="param.urlParam" v-bind:ref="param.name" v-bind:id="param.name" v-bind:placeholder="param.default ? param.default : param.example">
+                          <small class="form-text text-muted">Example: <em>{{ param.example }}</em></small>
+                          <small v-if="param.default" class="form-text text-muted">Default: <em>{{ param.default }}</em></small>
+                        </div>
+
                       </div>
 
-                      <div v-else-if="param.type == 'enum'" class="form-group">
-                        <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <select class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
-                          <option v-if="!param.required" value="">- select one -</option>
-                          <option :selected="value == param.default" v-for="value in param.values" v-bind:value="value">{{ value }}</option>
-                        </select>
-                      </div>
+                      <input type="hidden" ref="_method" id="_method" v-bind:value="route.method">
+                      <input type="hidden" ref="_url" id="_url" v-bind:value="route.url">
+                      <button type="submit" class="btn btn-primary">Submit</button>
+                      
+                    </form>
 
-                      <div v-else-if="param.type == 'boolean'" class="form-group">
-                        <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <select class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
-                          <option v-if="!param.required" value="">- select one -</option>
-                          <option value="true">TRUE</option>
-                          <option value="false">FALSE</option>
-                        </select>
-                      </div>
-
-                      <div v-else-if="param.type == 'file'" class="form-group">
-                        <label class="font-weight-bold">{{ param.name }} <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <input type="file" class="form-control" v-bind:ref="param.name" v-bind:id="param.name">
-                      </div>
-
-                      <div v-else class="form-group">
-                        <label class="font-weight-bold">{{ param.name }} <span v-if="param.urlParam" class="badge badge-warning">URL Parameter</span> <span v-if="param.required" class="badge badge-info">Required</span></label>
-                        <input type="text" class="form-control" v-bind:urlParam="param.urlParam" v-bind:ref="param.name" v-bind:id="param.name" v-bind:placeholder="param.default ? param.default : param.example">
-                        <small class="form-text text-muted">Example: <em>{{ param.example }}</em></small>
-                        <small v-if="param.default" class="form-text text-muted">Default: <em>{{ param.default }}</em></small>
-                      </div>
-
+                    <div class="mt-3 alert" v-bind:class="{ 'alert-success': !apiError, 'alert-danger': apiError }" v-if="formRoute == route.method+'-'+route.url && apiResponse">
+                      <pre class="pre-scrollable"><code>{{ apiResponse }}</code></pre>
                     </div>
 
-                    <input type="hidden" ref="_method" id="_method" v-bind:value="route.method">
-                    <input type="hidden" ref="_url" id="_url" v-bind:value="route.url">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    
-                  </form>
-
-                  <div class="mt-3 alert" v-bind:class="{ 'alert-success': !apiError, 'alert-danger': apiError }" v-if="formRoute == route.method+'-'+route.url && apiResponse">
-                    <pre class="pre-scrollable"><code>{{ apiResponse }}</code></pre>
                   </div>
-
                 </div>
+                
+
               </div>
               
-
+              
             </div>
             
-            
-          </div>
+          </main>
           
-        </main>
-        
+        </div>
+
+        <div class="row">
+          
+          <div class="col-sm-4 col-md-3 offset-sm-4 offset-md-3"></div>
+          <div class="col-sm-8 ml-sm-auto col-md-9 pt-3">
+            <p class="text-muted text-center" v-html="meta.copyright"></p>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
 
     <script src="/docs-assets/js/jquery-3.2.1.slim.min.js"></script>
@@ -164,14 +178,16 @@
     <script>
       var g;
       var routes = new Vue({
-        el: '#routes',
+        el: '#app',
         data: {
           routes: [],
           types: [],
           formRoute: "",
           apiResponse: null,
           apiError: false,
-          docsRoot: window.location.pathname
+          docsRoot: window.location.pathname,
+          apiName: '',
+          meta: {}
         },
         beforeCreate: function() {
           this.$http.get('/documentation.json')
@@ -180,6 +196,8 @@
               this.routes = response.body.routes;
               this.types = response.body.types;
               window.document.title = response.body.name;
+              this.apiName = response.body.name;
+              this.meta = response.body.meta;
             },
             function(error) {
               console.error(response.error);
@@ -280,5 +298,6 @@
         }
       });
     </script>
+    
   </body>
 </html>
