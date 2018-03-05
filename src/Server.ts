@@ -64,6 +64,9 @@ class Server {
   // application config
   public config(): void {
 
+    // custom middleware
+    this.options.middleware.forEach(middleware => this.app.use(middleware));
+    
     // handling our views for the docs
     this.app.use('/docs-assets', express.static(path.join(__dirname, '../public')));
 
@@ -76,9 +79,6 @@ class Server {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(fileupload());
-
-    // custom middleware
-    this.options.middleware.forEach(middleware => this.app.use(middleware));
   }
 
   // attach http components
