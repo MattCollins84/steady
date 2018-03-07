@@ -4,7 +4,13 @@ export interface IRoute {
   url: string
   controller: string
   action: string
+  authentication: IRouteAuthentication
   params: IRouteParameter[]
+}
+
+export interface IRouteAuthentication {
+  controller: string
+  action: string
 }
 
 export interface IDocsRoute extends IRoute {

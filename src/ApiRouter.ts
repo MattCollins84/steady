@@ -53,7 +53,16 @@ export default class ApiRouter {
   setupRoute(route: IRoute): void {
     let controller = this.controllers[route.controller];
     let action = controller[route.action] || this.defaultAction;
-    this.router[route.method](route.url, (req: IFilesRequest, res: Response) => {
+    
+    let authMethod = (req, res, next) => {
+      return next();
+    }
+
+    if (route.authentication && route.authentication.controller && route.authentication.action) {
+      authMethod = this.controllers[route.authentication.controller][route.authentication.action]();
+    }
+
+    this.router[route.method](route.url, authMethod, (req: IFilesRequest, res: Response) => {
       let values = route.method === 'get' ? req.query : req.body;
       const validator = new Validator(route.params, Object.assign({}, values, req.files));
       validator.addCustomTypes(this.customTypes);
