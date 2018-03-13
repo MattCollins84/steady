@@ -8,6 +8,7 @@ Features include:
 * Consistent approach to building APIs
 * Parameter validation via [Joi](https://github.com/hapijs/joi)
 * Customisable parameter types
+* Authentication per route
 * Basic [Typescript support](#typescript)
 * Allows custom static content (HTML, etc...)
 * Attach other HTTP components to the Steady server (such as Socket.IO)
@@ -84,6 +85,10 @@ In `user.json` we describe our first route:
     "url": "/user/:userId",
     "controller": "user",
     "action": "fetch",
+    "authentication": {
+      "controller": "auth",
+      "action": "simple"
+    },
     "params": [
       {
         "name": "include_meta",
@@ -100,11 +105,47 @@ This route definition does the following:
 * Defines an active route for `GET /user/:userId`, where `userId` can be captured as a parameter to be used later ([see Express documentation on routing for more info](https://expressjs.com/en/guide/routing.html))
 * Defines the controller to be used (`user.js`)
 * Defines the action to be user from within the controller (`fetch`)
+* Defines whether or not authentication is required for this route ([more info](#authentication))
 * Defines an additional parameter `include_meta` that can be used in this request
 
-**All properties except for `params` are required when defining a route**
+**All properties except for `params` and `authentication` are required when defining a route**
 
 You can create multiple definitions within each route definition file, and you can have multiple definition files within the specified `routesDir` (see below).
+
+### authentication
+Authentication can be handled on a per route basis, and configuration is very similar to defining a controller/action for your route:
+
+````javascript
+{
+  ...
+  "authentication": {
+    "controller": "auth",
+    "action": "simple",
+  }
+  ...
+}
+````
+
+This example shows that for this particular route, we want to use the `auth.js` controller and the `simple` method from within this controller. 
+
+All validation in Steady is created using [Express Middleware](https://expressjs.com/en/guide/using-middleware.html). This is what our simple authentication might look like:
+
+````javascript
+// auth.js
+const simple = (req, res, next) => {
+  const validCredentials = (req.query.username === 'valid_username' && req.query.password === 'valid_password');
+  if (validCredentials) return next();
+  return res.status(401).send("Unauthorized");
+}
+
+module.exports = {
+  simple
+}
+````
+
+If the request includes valid credentials, we call `next()` and carry on processing the request. If not, we return an error.
+
+Because we are just using [Express Middleware](https://expressjs.com/en/guide/using-middleware.html), it is very simple to use existing authentication middleware such as [Passport](http://www.passportjs.org/).
 
 ### Create application
 From the root of your project:
