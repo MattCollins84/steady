@@ -112,7 +112,7 @@ This route definition does the following:
 
 You can create multiple definitions within each route definition file, and you can have multiple definition files within the specified `routesDir` (see below).
 
-### authentication
+### Authentication
 Authentication can be handled on a per route basis, and configuration is very similar to defining a controller/action for your route:
 
 ````javascript
