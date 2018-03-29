@@ -4,6 +4,8 @@ import Validator from './Validator';
 import { ErrorResponse, IErrorData } from './ErrorResponse';
 import { SuccessResponse, ISuccessData } from './SuccessResponse';
 import { IParamType } from './Steady';
+import { DefaultRouteHandler } from './DefaultRouteHandler';
+import { StreamingRouteHandler } from './StreamingRouteHandler';
 
 interface IFilesRequest extends Request {
   files?: any
@@ -66,7 +68,7 @@ export default class ApiRouter {
       let values = route.method === 'get' ? req.query : req.body;
       const validator = new Validator(route.params, Object.assign({}, values, req.files));
       validator.addCustomTypes(this.customTypes);
-
+      
       try {
         if (validator.isValid() === false) {
           const errorMessage = `This request failed validation, please check the documentation for ${route.method.toUpperCase()} ${route.url}`
@@ -78,27 +80,27 @@ export default class ApiRouter {
         const errors = [
           `Invalid route definition for ${route.method.toUpperCase()} ${route.url}`
         ];
-        const err = new ErrorResponse({ req, res, errorMessage, errors: errors, status: 501 });
+        const err = new ErrorResponse({ req, res, errorMessage, errors, status: 501 });
         return err.send();
       }
 
       values = Object.assign(validator.values, req.params);
 
-      return action(values, (err: IErrorData, data?: ISuccessData) => {
-        if (err) {
-          const response = new ErrorResponse({
-            req: req,
-            res: res,
-            errorMessage: err.errorMessage,
-            errors: err.errors,
-            status: err.status
-          });
-          return response.send();
-        }
+      let routeHandler;
 
-        const response = new SuccessResponse({ req, res, data: data, status: 200 })
-        return response.send();
-      })
+      // streaming route
+      if (route.streaming === true) {
+        routeHandler = new StreamingRouteHandler(values, action, req, res);
+      }
+
+      // default route
+      else {
+        routeHandler = new DefaultRouteHandler(values, action, req, res);
+      }
+
+      // handle route
+      routeHandler.handle();
+      
     });
   }
 

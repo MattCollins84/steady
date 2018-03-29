@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const Validator_1 = require("./Validator");
 const ErrorResponse_1 = require("./ErrorResponse");
-const SuccessResponse_1 = require("./SuccessResponse");
+const DefaultRouteHandler_1 = require("./DefaultRouteHandler");
+const StreamingRouteHandler_1 = require("./StreamingRouteHandler");
 class ApiRouter {
     constructor(routes, controllers, customTypes = []) {
         this.router = express_1.Router();
@@ -57,24 +58,20 @@ class ApiRouter {
                 const errors = [
                     `Invalid route definition for ${route.method.toUpperCase()} ${route.url}`
                 ];
-                const err = new ErrorResponse_1.ErrorResponse({ req, res, errorMessage, errors: errors, status: 501 });
+                const err = new ErrorResponse_1.ErrorResponse({ req, res, errorMessage, errors, status: 501 });
                 return err.send();
             }
             values = Object.assign(validator.values, req.params);
-            return action(values, (err, data) => {
-                if (err) {
-                    const response = new ErrorResponse_1.ErrorResponse({
-                        req: req,
-                        res: res,
-                        errorMessage: err.errorMessage,
-                        errors: err.errors,
-                        status: err.status
-                    });
-                    return response.send();
-                }
-                const response = new SuccessResponse_1.SuccessResponse({ req, res, data: data, status: 200 });
-                return response.send();
-            });
+            let routeHandler;
+            // streaming route
+            if (route.streaming === true) {
+                routeHandler = new StreamingRouteHandler_1.StreamingRouteHandler(values, action, req, res);
+            }
+            else {
+                routeHandler = new DefaultRouteHandler_1.DefaultRouteHandler(values, action, req, res);
+            }
+            // handle route
+            routeHandler.handle();
         });
     }
 }

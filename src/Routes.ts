@@ -4,6 +4,7 @@ export interface IRoute {
   url: string
   controller: string
   action: string
+  streaming: boolean
   authentication: IRouteAuthentication
   params: IRouteParameter[]
 }
