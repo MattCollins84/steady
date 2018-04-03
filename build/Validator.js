@@ -44,7 +44,7 @@ class Validator {
     }
     applyDefaults() {
         this.params.forEach(param => {
-            if (!param.default)
+            if (typeof param.default === 'undefined')
                 return;
             switch (param.type) {
                 case "number":

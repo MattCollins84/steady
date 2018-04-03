@@ -52,3 +52,7 @@ export interface IErrorData {
 export interface ISuccessData {
   [key: string]: any
 }
+
+export interface ISteadyCallback {
+  (err: IErrorData, data?: ISuccessData): void
+}

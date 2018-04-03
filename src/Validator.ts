@@ -68,8 +68,8 @@ export default class Validator {
 
   private applyDefaults(): void {
     this.params.forEach(param => {
-      
-      if (!param.default) return;
+
+      if (typeof param.default === 'undefined') return;
 
       switch(param.type) {
         case "number":
@@ -86,10 +86,11 @@ export default class Validator {
           }
           break;
       }
-      
+
       if (!this.values[param.name] && this.values[param.name] !== 0 && param.default) {
         this.values[param.name] = param.default;
       }
+
     });
   }
 
