@@ -1,8 +1,8 @@
 {
   "name": "steady-api",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Configurable REST API built with Express and TypeScript",
-  "main": "build/index.js",
+  "main": "build/app.js",
   "types": "build/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

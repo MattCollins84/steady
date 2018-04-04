@@ -20,7 +20,7 @@ export interface IHttpAttach {
 }
 
 export interface IDocsMeta {
-  [key: string]: any;
+  copyright: string;
 }
 
 export interface ISteadyOptions {
@@ -41,7 +41,7 @@ export interface ISteadyOptions {
 export interface IParamType {
   name: string
   description: string
-  validator: (any)
+  validator: (param: object) => any
   example: any
 }
 export interface IErrorData {
