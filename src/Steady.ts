@@ -11,7 +11,7 @@ export interface IHttpAttach {
 }
 
 export interface IDocsMeta {
-  [key: string]: any;
+  copyright?: string;
 }
 
 export interface ISteadyOptions {

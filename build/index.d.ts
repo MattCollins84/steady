@@ -2,7 +2,7 @@
 /// <reference types="express" />
 /// <reference types="joi" />
 
-import * as Joi from 'joi';
+import { AnySchema } from 'joi';
 import { RequestHandler, ErrorRequestHandler } from 'express';
   
 export class Steady {
@@ -41,7 +41,7 @@ export interface ISteadyOptions {
 export interface IParamType {
   name: string
   description: string
-  validator: (param: object) => any
+  validator: (param: object) => AnySchema
   example: any
 }
 export interface IErrorData {
