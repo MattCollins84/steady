@@ -232,12 +232,12 @@ The response returned to the user will look something like this:
 ### Successful Response
 A successful response is much simpler, simply pass anything into the `data` argument of the callback whilst also passing `null` into the `err` argument of the callback. The response looks something like this:
 
+_**NOTE:** the response format has changed since `1.x.x`_
+
 ````javascript
 // HTTP/1.1 200 OK
 {
-  data: {
-    // whatever gets passed into the 'data' argument
-  }
+  // whatever gets passed into the 'data' argument
 }
 ````
 

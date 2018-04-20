@@ -1,6 +1,6 @@
 {
   "name": "steady-api",
-  "version": "1.6.4",
+  "version": "2.0.0",
   "description": "Configurable REST API built with Express and TypeScript",
   "main": "build/index.js",
   "types": "build/index.d.ts",

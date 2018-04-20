@@ -9,9 +9,7 @@ class SuccessResponse {
         this.data = options.data;
     }
     send() {
-        this.res.status(this.status).send(Object.assign({}, {
-            data: this.data
-        }));
+        this.res.status(this.status).send(this.data);
     }
 }
 exports.SuccessResponse = SuccessResponse;

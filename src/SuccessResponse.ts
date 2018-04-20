@@ -26,13 +26,6 @@ export class SuccessResponse {
   }
 
   public send(): void {
-    this.res.status(this.status).send(
-      Object.assign(
-        {},
-        {
-          data: this.data
-        }
-      )
-    )
+    this.res.status(this.status).send(this.data);
   }
 }
