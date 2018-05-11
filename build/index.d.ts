@@ -4,6 +4,7 @@
 
 import { AnySchema } from 'joi';
 import { RequestHandler, ErrorRequestHandler } from 'express';
+import { ChildProcess } from 'child_process';
   
 export class Steady {
   constructor(options: ISteadyOptions)
@@ -55,4 +56,8 @@ export interface ISuccessData {
 
 export interface ISteadyCallback {
   (err: IErrorData, data?: ISuccessData): void
+}
+
+export interface ISteadyStreamingCallback {
+  (err: IErrorData, stream?: ChildProcess, dataMapFunction?: (data: any) => any): void
 }

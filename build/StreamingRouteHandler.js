@@ -7,7 +7,7 @@ class StreamingRouteHandler extends DefaultRouteHandler_1.DefaultRouteHandler {
         super(values, action, req, res);
     }
     handle() {
-        this.action(this.values, (err, emitter) => {
+        this.action(this.values, (err, emitter, dataMapFunction) => {
             if (err) {
                 const response = new ErrorResponse_1.ErrorResponse({
                     req: this.req,
@@ -24,14 +24,25 @@ class StreamingRouteHandler extends DefaultRouteHandler_1.DefaultRouteHandler {
                 'Cache-Control': 'no-cache',
                 'Connection': 'keep-alive'
             });
-            emitter.on("data", data => {
+            this.req.on('close', () => {
+                emitter.kill('SIGHUP');
+            });
+            emitter.stdout.on("data", data => {
+                data = data.toString();
+                if (typeof dataMapFunction === 'function') {
+                    data = dataMapFunction(data);
+                }
                 const output = {
                     type: "data",
                     data: data
                 };
                 this.res.write(JSON.stringify(output) + "\n");
             });
-            emitter.on("error", err => {
+            emitter.stderr.on("data", err => {
+                err = err.toString();
+                if (typeof dataMapFunction === 'function') {
+                    err = dataMapFunction(err);
+                }
                 const output = {
                     type: "error",
                     data: err

@@ -4,6 +4,7 @@ import { ISuccessData, SuccessResponse } from './SuccessResponse';
 import { Request, Response } from 'express';
 import { EventEmitter } from 'events'
 import { emit } from 'cluster';
+import { spawn, ChildProcess } from 'child_process';
 
 export class StreamingRouteHandler extends DefaultRouteHandler {
 
@@ -12,7 +13,8 @@ export class StreamingRouteHandler extends DefaultRouteHandler {
   }
 
   handle() {
-    this.action(this.values, (err: IErrorData, emitter?: EventEmitter) => {
+    this.action(this.values, (err: IErrorData, emitter: ChildProcess, dataMapFunction) => {
+
       if (err) {
         const response = new ErrorResponse({
           req: this.req,
@@ -31,7 +33,17 @@ export class StreamingRouteHandler extends DefaultRouteHandler {
         'Connection': 'keep-alive'
       });
 
-      emitter.on("data", data => {
+      this.req.on('close', () => {
+        emitter.kill('SIGHUP');
+      });
+
+      emitter.stdout.on("data", data => {
+        
+        data = data.toString();
+        if (typeof dataMapFunction === 'function') {
+          data = dataMapFunction(data);
+        }
+
         const output = {
           type: "data",
           data: data
@@ -39,7 +51,13 @@ export class StreamingRouteHandler extends DefaultRouteHandler {
         this.res.write(JSON.stringify(output) + "\n");
       });
 
-      emitter.on("error", err => {
+      emitter.stderr.on("data", err => {
+
+        err = err.toString();
+        if (typeof dataMapFunction === 'function') {
+          err = dataMapFunction(err);
+        }
+
         const output = {
           type: "error",
           data: err
